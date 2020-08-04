@@ -1,0 +1,32 @@
+name: Release
+
+on:
+  repository_dispatch:
+    types: [semantic-release]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Code Checkout
+        uses: actions/checkout@v2
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v1
+        with:
+          node-version: "12"
+
+      - name: Install Dependencies
+        run: |
+          npm install -g pnpm@5
+          pnpm i --frozen-lockfile
+        env:
+          HUSKY_SKIP_INSTALL: 1
+          CI: true
+
+      - name: Release
+        run: pnpm run release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
