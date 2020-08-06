@@ -24,7 +24,7 @@ import { createFilter } from "@rollup/pluginutils";
 import qs from "query-string";
 
 import { hash } from "./utils";
-import { Options } from "./types";
+import { Options, Query } from "./types";
 
 const debug = createDebugger("rollup-plugin-vue3");
 const cache = new Map<string, SFCDescriptor>();
@@ -50,190 +50,54 @@ export default (opts: Partial<Options> = {}): Plugin => {
     name: "vue3",
 
     async resolveId(id, importer) {
-      const query = parseVuePartRequest(id);
+      const query = parseQuery(id);
       if (!query.vue) return null;
 
       if (query.src) {
-        const resolved = await this.resolve(query.filename, importer, {
-          skipSelf: true,
-        });
-
+        const resolved = await this.resolve(query.filename, importer, { skipSelf: true });
         if (resolved && importer) {
           cache.set(resolved.id, getDescriptor(importer));
           const [, originalQuery] = id.split("?", 2);
           resolved.id += `?${originalQuery}`;
           return resolved;
         }
-      } else if (!filter(query.filename)) {
-        return null;
-      }
+      } else if (!filter(query.filename)) return null;
 
       debug(`resolveId(${id})`);
       return id;
     },
 
-    load(id) {
-      const query = parseVuePartRequest(id);
-      if (query.vue) {
-        if (query.src) {
-          return fs.readFileSync(query.filename, "utf-8");
-        }
-        const descriptor = getDescriptor(query.filename);
-        if (descriptor) {
-          const block =
-            query.type === "template"
-              ? descriptor.template!
-              : query.type === "script"
-              ? descriptor.script!
-              : query.type === "style"
-              ? descriptor.styles[query.index]
-              : typeof query.index === "number"
-              ? descriptor.customBlocks[query.index]
-              : null;
+    async load(id) {
+      const query = parseQuery(id);
+      if (!query.vue) return null;
 
-          if (block) {
-            return {
-              code: block.content,
-              map: normalizeSourceMap(block.map),
-            };
-          }
-        }
+      if (query.src) return fs.readFile(query.filename, "utf-8");
+
+      const descriptor = getDescriptor(query.filename);
+
+      if (descriptor) {
+        let block = null;
+        if (query.type === "template") block = descriptor.template;
+        else if (query.type === "script") block = descriptor.script;
+        else if (query.type === "style") block = descriptor.styles[query.index];
+        else if (query.type === "custom") block = descriptor.customBlocks[query.index];
+        if (block) return { code: block.content, map: normalizeSourceMap(block.map) };
       }
 
-      return;
+      return null;
     },
 
     async transform(code, id) {
-      const query = parseVuePartRequest(id);
-      if (query.vue) {
-        if (!query.src && !filter(query.filename)) return null;
+      const query = parseQuery(id);
 
-        const descriptor = getDescriptor(query.filename);
-        const hasScoped = descriptor.styles.some(s => s.scoped);
-        if (query.type === "template") {
-          debug(`transform(${id})`);
-          const block = descriptor.template!;
-          const preprocessLang = block.lang;
-          const preprocessOptions =
-            preprocessLang &&
-            options.templatePreprocessOptions &&
-            options.templatePreprocessOptions[preprocessLang];
-          const result = compileTemplate({
-            filename: query.filename,
-            source: code,
-            inMap: query.src ? undefined : block.map,
-            preprocessLang,
-            preprocessOptions,
-            preprocessCustomRequire: options.preprocessCustomRequire,
-            compiler: options.compiler,
-            ssr: isServer,
-            compilerOptions: {
-              ...options.compilerOptions,
-              scopeId: hasScoped ? `data-v-${query.id}` : undefined,
-              bindingMetadata: descriptor.script ? descriptor.script.bindings : undefined,
-            },
-            transformAssetUrls: options.transformAssetUrls,
-          });
-
-          if (result.errors.length) {
-            result.errors.forEach(error =>
-              this.error(
-                typeof error === "string"
-                  ? { id: query.filename, message: error }
-                  : createRollupError(query.filename, error),
-              ),
-            );
-            return null;
-          }
-
-          if (result.tips.length) {
-            result.tips.forEach(tip =>
-              this.warn({
-                id: query.filename,
-                message: tip,
-              }),
-            );
-          }
-
-          return {
-            code: result.code,
-            map: normalizeSourceMap(result.map),
-          };
-        } else if (query.type === "style") {
-          debug(`transform(${id})`);
-          const block = descriptor.styles[query.index]!;
-
-          let preprocessOptions = options.preprocessOptions || {};
-          const preprocessLang = (options.preprocessStyles
-            ? block.lang
-            : undefined) as SFCAsyncStyleCompileOptions["preprocessLang"];
-
-          if (preprocessLang) {
-            preprocessOptions = preprocessOptions[preprocessLang] || preprocessOptions;
-            // include node_modules for imports by default
-            switch (preprocessLang) {
-              case "scss":
-              case "sass":
-                preprocessOptions = {
-                  includePaths: ["node_modules"],
-                  ...preprocessOptions,
-                };
-                break;
-              case "less":
-              case "stylus":
-                preprocessOptions = {
-                  paths: ["node_modules"],
-                  ...preprocessOptions,
-                };
-            }
-          } else {
-            preprocessOptions = {};
-          }
-
-          const result = await compileStyleAsync({
-            filename: query.filename,
-            id: `data-v-${query.id!}`,
-            source: code,
-            scoped: block.scoped,
-            vars: !!block.vars,
-            modules: !!block.module,
-            postcssOptions: options.postcssOptions,
-            postcssPlugins: options.postcssPlugins,
-            modulesOptions: options.cssModulesOptions,
-            preprocessLang,
-            preprocessCustomRequire: options.preprocessCustomRequire,
-            preprocessOptions,
-          });
-
-          if (result.errors.length) {
-            result.errors.forEach(error =>
-              this.error({
-                id: query.filename,
-                message: error.message,
-              }),
-            );
-            return null;
-          }
-
-          if (query.module) {
-            return {
-              code: `export default ${_(result.modules)}`,
-              map: null,
-            };
-          } else {
-            return {
-              code: result.code,
-              map: normalizeSourceMap(result.map),
-            };
-          }
-        }
-        return null;
-      } else if (filter(id)) {
+      // .vue file
+      if (!query.vue && filter(id)) {
         debug(`transform(${id})`);
+
         const { descriptor, errors } = parseSFC(code, id, rootContext);
 
-        if (errors.length) {
-          errors.forEach(error => this.error(createRollupError(id, error)));
+        if (errors.length > 0) {
+          for (const error of errors) this.error(createRollupError(id, error));
           return null;
         }
 
@@ -245,17 +109,131 @@ export default (opts: Partial<Options> = {}): Plugin => {
           { rootContext, isProduction, isServer, filterCustomBlock },
           options,
         );
+
         debug("transient .vue file:", `\n${output}\n`);
 
-        return {
-          code: output,
-          map: {
-            mappings: "",
-          },
-        };
-      } else {
-        return null;
+        return { code: output, map: { mappings: "" } };
       }
+
+      if (!query.vue) return null;
+      if (!query.src && !filter(query.filename)) return null;
+
+      const descriptor = getDescriptor(query.filename);
+      const hasScoped = descriptor.styles.some(s => s.scoped);
+
+      if (query.type === "template" && descriptor.template) {
+        debug(`transform(${id})`);
+
+        const block = descriptor.template;
+        const preprocessLang = block.lang;
+
+        const preprocessOptions =
+          preprocessLang &&
+          options.templatePreprocessOptions &&
+          (options.templatePreprocessOptions[preprocessLang] as Record<string, unknown>);
+
+        const result = compileTemplate({
+          filename: query.filename,
+          source: code,
+          inMap: query.src ? undefined : block.map,
+          preprocessLang,
+          preprocessOptions,
+          preprocessCustomRequire: options.preprocessCustomRequire,
+          compiler: options.compiler,
+          ssr: isServer,
+          compilerOptions: {
+            ...options.compilerOptions,
+            scopeId: hasScoped && query.id ? `data-v-${query.id}` : undefined,
+            bindingMetadata: descriptor.script ? descriptor.script.bindings : undefined,
+          },
+          transformAssetUrls: options.transformAssetUrls,
+        });
+
+        if (result.errors.length > 0) {
+          for (const error of result.errors)
+            this.error(
+              typeof error === "string"
+                ? { id: query.filename, message: error }
+                : createRollupError(query.filename, error),
+            );
+
+          return null;
+        }
+
+        if (result.tips.length > 0)
+          for (const tip of result.tips)
+            this.warn({
+              id: query.filename,
+              message: tip,
+            });
+
+        return {
+          code: result.code,
+          map: normalizeSourceMap(result.map),
+        };
+      } else if (query.type === "style") {
+        debug(`transform(${id})`);
+        const block = descriptor.styles[query.index];
+
+        let preprocessOptions = (options.preprocessOptions as Record<string, unknown>) || {};
+
+        const preprocessLang = (options.preprocessStyles
+          ? block.lang
+          : undefined) as SFCAsyncStyleCompileOptions["preprocessLang"];
+
+        if (preprocessLang) {
+          preprocessOptions =
+            (preprocessOptions[preprocessLang] as Record<string, unknown>) || preprocessOptions;
+
+          // include node_modules for imports by default
+          switch (preprocessLang) {
+            case "scss":
+            case "sass":
+              preprocessOptions = {
+                includePaths: ["node_modules"],
+                ...preprocessOptions,
+              };
+              break;
+
+            case "less":
+            case "stylus":
+              preprocessOptions = {
+                paths: ["node_modules"],
+                ...preprocessOptions,
+              };
+          }
+        } else preprocessOptions = {};
+
+        const result = await compileStyleAsync({
+          filename: query.filename,
+          id: query.id ? `data-v-${query.id}` : ``,
+          source: code,
+          scoped: block.scoped,
+          vars: !!block.vars,
+          modules: !!block.module,
+          postcssOptions: options.postcssOptions as Record<string, unknown>,
+          postcssPlugins: options.postcssPlugins,
+          modulesOptions: options.cssModulesOptions,
+          preprocessLang,
+          preprocessCustomRequire: options.preprocessCustomRequire,
+          preprocessOptions,
+        });
+
+        if (result.errors.length > 0) {
+          for (const error of result.errors)
+            this.error({
+              id: query.filename,
+              message: error.message,
+            });
+          return null;
+        }
+
+        if (query.module)
+          return { code: `export default ${JSON.stringify(result.modules)};`, map: null };
+
+        return { code: result.code, map: normalizeSourceMap(result.map) };
+      }
+      return null;
     },
   };
 
@@ -266,81 +244,40 @@ function createCustomBlockFilter(queries?: string[]): (type: string) => boolean 
   if (!queries || queries.length === 0) return () => false;
 
   const allowed = new Set(queries.filter(query => /^[a-z]/i.test(query)));
+
   const disallowed = new Set(
     queries.filter(query => /^![a-z]/i.test(query)).map(query => query.slice(1)),
   );
+
   const allowAll = queries.includes("*") || !queries.includes("!*");
 
   return (type: string) => {
     if (allowed.has(type)) return true;
     if (disallowed.has(type)) return true;
-
     return allowAll;
   };
 }
 
-type Query =
-  | {
-      filename: string;
-      vue: false;
-    }
-  | {
-      filename: string;
-      vue: true;
-      type: "script";
-      src?: true;
-    }
-  | {
-      filename: string;
-      vue: true;
-      type: "template";
-      id?: string;
-      src?: true;
-    }
-  | {
-      filename: string;
-      vue: true;
-      type: "style";
-      index: number;
-      id?: string;
-      scoped?: boolean;
-      module?: string | boolean;
-      src?: true;
-    }
-  | {
-      filename: string;
-      vue: true;
-      type: "custom";
-      index: number;
-      src?: true;
-    };
-
-function parseVuePartRequest(id: string): Query {
+function parseQuery(id: string): Query {
   const [filename, query] = id.split("?", 2);
-
-  if (!query) return { vue: false, filename };
+  if (!query) return { vue: false };
 
   const raw = qs.parse(query);
+  if (!("vue" in raw)) return { vue: false };
 
-  if ("vue" in raw) {
-    return {
-      ...raw,
-      filename,
-      vue: true,
-      index: Number(raw.index),
-      src: "src" in raw,
-      scoped: "scoped" in raw,
-    } as any;
-  }
-
-  return { vue: false, filename };
+  return {
+    ...raw,
+    filename,
+    vue: true,
+    index: raw.index && Number(raw.index),
+    src: "src" in raw,
+    scoped: "scoped" in raw,
+  } as Query;
 }
 
 function getDescriptor(id: string) {
-  if (cache.has(id)) {
-    return cache.get(id)!;
-  }
-
+  const cached = cache.get(id);
+  if (cached) return cached;
   throw new Error(`${id} is not parsed yet`);
 }
 
@@ -350,6 +287,7 @@ function parseSFC(code: string, id: string, sourceRoot: string) {
     filename: id,
     sourceRoot: sourceRoot,
   });
+
   cache.set(id, descriptor);
   return { descriptor, errors: errors };
 }
@@ -374,28 +312,34 @@ function transformVueSFC(
   const shortFilePath = relative(rootContext, resourcePath)
     .replace(/^(\.\.[/\\])+/, "")
     .replace(/\\/g, "/");
+
   const id = hash(isProduction ? `${shortFilePath}\n${code}` : shortFilePath);
+
   // feature information
   const hasScoped = descriptor.styles.some(s => s.scoped);
   const templateImport = getTemplateCode(descriptor, resourcePath, id, hasScoped, isServer);
   const scriptImport = getScriptCode(descriptor, resourcePath);
   const stylesCode = getStyleCode(descriptor, resourcePath, id, options.preprocessStyles);
   const customBlocksCode = getCustomBlock(descriptor, resourcePath, filterCustomBlock);
+
   const output = [
     scriptImport,
     templateImport,
     stylesCode,
     customBlocksCode,
-    isServer ? `script.ssrRender = ssrRender` : `script.render = render`,
+    isServer ? `script.ssrRender = ssrRender;` : `script.render = render;`,
   ];
+
   if (hasScoped) {
-    output.push(`script.__scopeId = ${_(`data-v-${id}`)}`);
+    output.push(`script.__scopeId = ${JSON.stringify(`data-v-${id}`)};`);
   }
+
   if (!isProduction) {
-    output.push(`script.__file = ${_(shortFilePath)}`);
+    output.push(`script.__file = ${JSON.stringify(shortFilePath)};`);
   } else if (options.exposeFilename) {
-    output.push(`script.__file = ${_(basename(shortFilePath))}`);
+    output.push(`script.__file = ${JSON.stringify(basename(shortFilePath))};`);
   }
+
   output.push("export default script");
   return output.join("\n");
 }
@@ -409,14 +353,15 @@ function getTemplateCode(
 ) {
   let templateImport = `const render = () => {}`;
   let templateRequest;
+
   if (descriptor.template) {
-    const src = descriptor.template.src || resourcePath;
+    const src = descriptor.template.src ?? resourcePath;
     const idQuery = `&id=${id}`;
     const scopedQuery = hasScoped ? `&scoped=true` : ``;
     const srcQuery = descriptor.template.src ? `&src` : ``;
     const attrsQuery = attrsToQuery(descriptor.template.attrs);
     const query = `?vue&type=template${idQuery}${srcQuery}${scopedQuery}${attrsQuery}`;
-    templateRequest = _(src + query);
+    templateRequest = JSON.stringify(src + query);
     templateImport = `import { ${isServer ? "ssrRender" : "render"} } from ${templateRequest}`;
   }
 
@@ -426,15 +371,13 @@ function getTemplateCode(
 function getScriptCode(descriptor: SFCDescriptor, resourcePath: string) {
   let scriptImport = `const script = {}`;
   if (descriptor.script || descriptor.scriptSetup) {
-    if (compileScript) {
-      descriptor.script = compileScript(descriptor);
-    }
+    if (compileScript) descriptor.script = compileScript(descriptor);
     if (descriptor.script) {
-      const src = descriptor.script.src || resourcePath;
+      const src = descriptor.script.src ?? resourcePath;
       const attrsQuery = attrsToQuery(descriptor.script.attrs, "js");
       const srcQuery = descriptor.script.src ? `&src` : ``;
       const query = `?vue&type=script${srcQuery}${attrsQuery}`;
-      const scriptRequest = _(src + query);
+      const scriptRequest = JSON.stringify(src + query);
       scriptImport = `import script from ${scriptRequest}\n` + `export * from ${scriptRequest}`; // support named exports
     }
   }
@@ -449,30 +392,35 @@ function getStyleCode(
 ) {
   let stylesCode = ``;
   let hasCSSModules = false;
-  if (descriptor.styles.length) {
+
+  if (descriptor.styles.length > 0) {
     descriptor.styles.forEach((style, i) => {
-      const src = style.src || resourcePath;
+      const src = style.src ?? resourcePath;
+
       // do not include module in default query, since we use it to indicate
       // that the module needs to export the modules json
       const attrsQuery = attrsToQuery(style.attrs, "css", preprocessStyles);
       const attrsQueryWithoutModule = attrsQuery.replace(/&module(=true|=[^&]+)?/, "");
+
       // make sure to only pass id when necessary so that we don't inject
       // duplicate tags when multiple components import the same css file
       const idQuery = style.scoped ? `&id=${id}` : ``;
       const srcQuery = style.src ? `&src` : ``;
       const query = `?vue&type=style&index=${i}${srcQuery}${idQuery}`;
+
       const styleRequest = src + query + attrsQuery;
       const styleRequestWithoutModule = src + query + attrsQueryWithoutModule;
+
       if (style.module) {
         if (!hasCSSModules) {
-          stylesCode += `\nconst cssModules = script.__cssModules = {}`;
+          stylesCode += `\nconst cssModules = script.__cssModules = {};`;
           hasCSSModules = true;
         }
+
         stylesCode += genCSSModulesCode(i, styleRequest, styleRequestWithoutModule, style.module);
       } else {
-        stylesCode += `\nimport ${_(styleRequest)}`;
+        stylesCode += `\nimport ${JSON.stringify(styleRequest)};`;
       }
-      // TODO SSR critical CSS collection
     });
   }
   return stylesCode;
@@ -487,11 +435,11 @@ function getCustomBlock(
 
   descriptor.customBlocks.forEach((block, index) => {
     if (filter(block.type)) {
-      const src = block.src || resourcePath;
+      const src = block.src ?? resourcePath;
       const attrsQuery = attrsToQuery(block.attrs, block.type);
       const srcQuery = block.src ? `&src` : ``;
       const query = `?vue&type=${block.type}&index=${index}${srcQuery}${attrsQuery}`;
-      const request = _(src + query);
+      const request = JSON.stringify(src + query);
       code += `import block${index} from ${request}\n`;
       code += `if (typeof block${index} === 'function') block${index}(script)\n`;
     }
@@ -500,32 +448,27 @@ function getCustomBlock(
   return code;
 }
 
-function createRollupError(id: string, error: CompilerError | SyntaxError): RollupError {
-  if ("code" in error) {
-    return {
-      id,
-      plugin: "vue",
-      pluginCode: String(error.code),
-      message: error.message,
-      frame: error.loc!.source,
-      parserError: error,
-      loc: error.loc
-        ? {
-            file: id,
-            line: error.loc.start.line,
-            column: error.loc.start.column,
-          }
-        : undefined,
-    };
-  } else {
-    return {
-      id,
-      plugin: "vue",
-      message: error.message,
-      parserError: error,
-    };
-  }
-}
+const createRollupError = (id: string, error: CompilerError | SyntaxError): RollupError =>
+  "code" in error
+    ? {
+        id,
+        plugin: "vue",
+        pluginCode: String(error.code),
+        message: error.message,
+        frame: error.loc?.source,
+        parserError: error,
+        loc: error.loc && {
+          file: id,
+          line: error.loc.start.line,
+          column: error.loc.start.column,
+        },
+      }
+    : {
+        id,
+        plugin: "vue",
+        message: error.message,
+        parserError: error,
+      };
 
 // these are built-in query parameters so should be ignored
 // if the user happen to add them as attrs
@@ -536,38 +479,27 @@ function attrsToQuery(
   langFallback?: string,
   forceLangFallback = false,
 ): string {
-  let query = ``;
-  for (const name in attrs) {
-    const value = attrs[name];
-    if (!ignoreList.includes(name)) {
-      // TODO: escaping
-      query += `&${qs.escape(name)}${value ? `=${qs.escape(String(value))}` : ``}`;
-    }
+  const _attrs = { ...attrs };
+  for (const name in _attrs) if (!ignoreList.includes(name)) delete _attrs[name];
+  let query = qs.stringify(_attrs);
+
+  if (attrs.lang && typeof attrs.lang === "string" && !forceLangFallback) {
+    query += `&lang.${attrs.lang}`;
+  } else if (langFallback) {
+    query += `&lang.${langFallback}`;
   }
-  if (langFallback || attrs.lang) {
-    query +=
-      `lang` in attrs
-        ? forceLangFallback
-          ? `&lang.${langFallback}`
-          : `&lang.${attrs.lang}`
-        : `&lang.${langFallback}`;
-  }
+
   return query;
 }
 
-function _(any: any) {
-  return JSON.stringify(any);
-}
-
-function normalizeSourceMap(map: SFCTemplateCompileResults["map"]): any {
-  if (!map) return null as any;
-
-  return {
-    ...map,
-    version: Number(map.version),
-    mappings: typeof map.mappings === "string" ? map.mappings : "",
-  };
-}
+const normalizeSourceMap = (map: SFCTemplateCompileResults["map"]) =>
+  map
+    ? {
+        ...map,
+        version: Number(map.version),
+        mappings: typeof map.mappings === "string" ? map.mappings : "",
+      }
+    : null;
 
 function genCSSModulesCode(
   index: number,
@@ -576,14 +508,16 @@ function genCSSModulesCode(
   moduleName: string | boolean,
 ): string {
   const styleVar = `style${index}`;
-  let code =
+
+  const code = [
     // first import the CSS for extraction
-    `\nimport ${_(requestWithoutModule)}` +
+    `import "${requestWithoutModule}";`,
     // then import the json file to expose to component...
-    `\nimport ${styleVar} from ${_(`${request}.js`)}`;
+    `import ${styleVar} from "${request}.js";`,
+  ];
 
   // inject variable
   const name = typeof moduleName === "string" ? moduleName : "$style";
-  code += `\ncssModules["${name}"] = ${styleVar}`;
-  return code;
+  code.push(`cssModules["${name}"] = ${styleVar};`);
+  return code.join("\n");
 }

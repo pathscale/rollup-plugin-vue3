@@ -1,6 +1,5 @@
 /* eslint node/no-unsupported-features/es-syntax: ["error", { ignores: ["modules"] }] */
 
-import { terser } from "rollup-plugin-terser";
 import babel from "@rollup/plugin-babel";
 import commonjs from "@rollup/plugin-commonjs";
 import dts from "rollup-plugin-dts";
@@ -18,7 +17,7 @@ export default [
   {
     input: "src/index.ts",
     output: [
-      { format: "cjs", file: pkg.main },
+      { format: "cjs", file: pkg.main, exports: "auto" },
       { format: "es", file: pkg.module },
     ],
     plugins: [
@@ -29,23 +28,6 @@ export default [
       commonjs(),
       typescript(),
       babel({ babelHelpers: "bundled", extensions }),
-    ],
-  },
-  // Injector
-  {
-    input: "runtime/inject-css.js",
-    output: { format: "es", file: "dist/runtime/inject-css.js" },
-    plugins: [
-      externals({ deps: true }),
-      json(),
-      resolve({ preferBuiltins: true }),
-      commonjs(),
-      babel({
-        babelHelpers: "bundled",
-        configFile: false,
-        presets: [["@babel/preset-env", { modules: false, targets: { ie: "8" } }]],
-      }),
-      terser({ output: { comments: false }, ie8: true, safari10: true }),
     ],
   },
   // Declaration
