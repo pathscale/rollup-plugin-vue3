@@ -23,7 +23,7 @@ import { Plugin, RollupError } from "rollup";
 import { createFilter } from "@rollup/pluginutils";
 import qs from "query-string";
 
-import { hash } from "./utils";
+import { hash, joinCode } from "./utils";
 import { Options, Query } from "./types";
 
 const debug = createDebugger("rollup-plugin-vue3");
@@ -101,7 +101,6 @@ export default (opts: Partial<Options> = {}): Plugin => {
           return null;
         }
 
-        // module id for scoped CSS & hot-reload
         const output = transformVueSFC(
           code,
           id,
@@ -189,18 +188,12 @@ export default (opts: Partial<Options> = {}): Plugin => {
           switch (preprocessLang) {
             case "scss":
             case "sass":
-              preprocessOptions = {
-                includePaths: ["node_modules"],
-                ...preprocessOptions,
-              };
+              preprocessOptions = { includePaths: ["node_modules"], ...preprocessOptions };
               break;
 
             case "less":
             case "stylus":
-              preprocessOptions = {
-                paths: ["node_modules"],
-                ...preprocessOptions,
-              };
+              preprocessOptions = { paths: ["node_modules"], ...preprocessOptions };
           }
         } else preprocessOptions = {};
 
@@ -221,10 +214,8 @@ export default (opts: Partial<Options> = {}): Plugin => {
 
         if (result.errors.length > 0) {
           for (const error of result.errors)
-            this.error({
-              id: query.filename,
-              message: error.message,
-            });
+            this.error({ id: query.filename, message: error.message });
+
           return null;
         }
 
@@ -233,6 +224,7 @@ export default (opts: Partial<Options> = {}): Plugin => {
 
         return { code: result.code, map: normalizeSourceMap(result.map) };
       }
+
       return null;
     },
   };
@@ -315,7 +307,6 @@ function transformVueSFC(
 
   const id = hash(isProduction ? `${shortFilePath}\n${code}` : shortFilePath);
 
-  // feature information
   const hasScoped = descriptor.styles.some(s => s.scoped);
   const templateImport = getTemplateCode(descriptor, resourcePath, id, hasScoped, isServer);
   const scriptImport = getScriptCode(descriptor, resourcePath);
@@ -330,18 +321,16 @@ function transformVueSFC(
     isServer ? `script.ssrRender = ssrRender;` : `script.render = render;`,
   ];
 
-  if (hasScoped) {
-    output.push(`script.__scopeId = ${JSON.stringify(`data-v-${id}`)};`);
-  }
+  if (hasScoped) output.push(`script.__scopeId = "data-v-${id}";`);
 
   if (!isProduction) {
-    output.push(`script.__file = ${JSON.stringify(shortFilePath)};`);
+    output.push(`script.__file = "${shortFilePath}";`);
   } else if (options.exposeFilename) {
-    output.push(`script.__file = ${JSON.stringify(basename(shortFilePath))};`);
+    output.push(`script.__file = "${basename(shortFilePath)}";`);
   }
 
   output.push("export default script");
-  return output.join("\n");
+  return joinCode(output);
 }
 
 function getTemplateCode(
@@ -351,8 +340,7 @@ function getTemplateCode(
   hasScoped: boolean,
   isServer: boolean,
 ) {
-  let templateImport = `const render = () => {}`;
-  let templateRequest;
+  let templateImport = `const render = () => {};`;
 
   if (descriptor.template) {
     const src = descriptor.template.src ?? resourcePath;
@@ -361,8 +349,8 @@ function getTemplateCode(
     const srcQuery = descriptor.template.src ? `&src` : ``;
     const attrsQuery = attrsToQuery(descriptor.template.attrs);
     const query = `?vue&type=template${idQuery}${srcQuery}${scopedQuery}${attrsQuery}`;
-    templateRequest = JSON.stringify(src + query);
-    templateImport = `import { ${isServer ? "ssrRender" : "render"} } from ${templateRequest}`;
+    const templateRequest = `"${src + query}"`;
+    templateImport = `import { ${isServer ? "ssrRender" : "render"} } from ${templateRequest};`;
   }
 
   return templateImport;
@@ -377,8 +365,9 @@ function getScriptCode(descriptor: SFCDescriptor, resourcePath: string) {
       const attrsQuery = attrsToQuery(descriptor.script.attrs, "js");
       const srcQuery = descriptor.script.src ? `&src` : ``;
       const query = `?vue&type=script${srcQuery}${attrsQuery}`;
-      const scriptRequest = JSON.stringify(src + query);
-      scriptImport = `import script from ${scriptRequest}\n` + `export * from ${scriptRequest}`; // support named exports
+      const scriptRequest = `"${src + query}"`;
+      scriptImport = `import script from ${scriptRequest};`;
+      scriptImport += `\nexport * from ${scriptRequest};`;
     }
   }
   return scriptImport;
@@ -419,10 +408,11 @@ function getStyleCode(
 
         stylesCode += genCSSModulesCode(i, styleRequest, styleRequestWithoutModule, style.module);
       } else {
-        stylesCode += `\nimport ${JSON.stringify(styleRequest)};`;
+        stylesCode += `\nimport "${styleRequest}";`;
       }
     });
   }
+
   return stylesCode;
 }
 
@@ -431,28 +421,27 @@ function getCustomBlock(
   resourcePath: string,
   filter: (type: string) => boolean,
 ) {
-  let code = "";
+  const code: string[] = [];
 
   descriptor.customBlocks.forEach((block, index) => {
-    if (filter(block.type)) {
-      const src = block.src ?? resourcePath;
-      const attrsQuery = attrsToQuery(block.attrs, block.type);
-      const srcQuery = block.src ? `&src` : ``;
-      const query = `?vue&type=${block.type}&index=${index}${srcQuery}${attrsQuery}`;
-      const request = JSON.stringify(src + query);
-      code += `import block${index} from ${request}\n`;
-      code += `if (typeof block${index} === 'function') block${index}(script)\n`;
-    }
+    if (!filter(block.type)) return;
+    const src = block.src ?? resourcePath;
+    const srcQuery = block.src ? `&src` : ``;
+    const attrsQuery = attrsToQuery(block.attrs, block.type);
+    const query = `?vue&type=${block.type}&index=${index}${srcQuery}${attrsQuery}`;
+    const request = `"${src + query}"`;
+    code.push(`import block${index} from ${request};`);
+    code.push(`if (typeof block${index} === "function") { block${index}(script) };`);
   });
 
-  return code;
+  return joinCode(code);
 }
 
 const createRollupError = (id: string, error: CompilerError | SyntaxError): RollupError =>
   "code" in error
     ? {
         id,
-        plugin: "vue",
+        plugin: "vue3",
         pluginCode: String(error.code),
         message: error.message,
         frame: error.loc?.source,
@@ -465,7 +454,7 @@ const createRollupError = (id: string, error: CompilerError | SyntaxError): Roll
       }
     : {
         id,
-        plugin: "vue",
+        plugin: "vue3",
         message: error.message,
         parserError: error,
       };
@@ -479,9 +468,11 @@ function attrsToQuery(
   langFallback?: string,
   forceLangFallback = false,
 ): string {
-  const _attrs = { ...attrs };
-  for (const name in _attrs) if (!ignoreList.includes(name)) delete _attrs[name];
-  let query = qs.stringify(_attrs);
+  let query = ``;
+
+  const attrsList = Object.entries(attrs).filter(([k]) => !ignoreList.includes(k));
+  if (attrsList.length > 0) query += `&`;
+  query += qs.stringify(Object.fromEntries(attrsList));
 
   if (attrs.lang && typeof attrs.lang === "string" && !forceLangFallback) {
     query += `&lang.${attrs.lang}`;
@@ -508,16 +499,8 @@ function genCSSModulesCode(
   moduleName: string | boolean,
 ): string {
   const styleVar = `style${index}`;
-
-  const code = [
-    // first import the CSS for extraction
-    `import "${requestWithoutModule}";`,
-    // then import the json file to expose to component...
-    `import ${styleVar} from "${request}.js";`,
-  ];
-
-  // inject variable
+  const code = [`import "${requestWithoutModule}";`, `import ${styleVar} from "${request}";`];
   const name = typeof moduleName === "string" ? moduleName : "$style";
   code.push(`cssModules["${name}"] = ${styleVar};`);
-  return code.join("\n");
+  return joinCode(code);
 }

@@ -5,7 +5,7 @@ dependencies:
   query-string: 6.13.1
   resolve: 1.17.0
   source-map: 0.7.3
-  tslib: 2.0.0
+  tslib: 2.0.1
 devDependencies:
   '@babel/core': 7.11.1
   '@babel/plugin-proposal-class-properties': 7.10.4_@babel+core@7.11.1
@@ -18,7 +18,7 @@ devDependencies:
   '@rollup/plugin-json': 4.1.0_rollup@2.23.0
   '@rollup/plugin-node-resolve': 8.4.0_rollup@2.23.0
   '@rollup/plugin-replace': 2.3.3_rollup@2.23.0
-  '@rollup/plugin-typescript': 5.0.2_d508d998c8e6588bf77175f7541372d0
+  '@rollup/plugin-typescript': 5.0.2_87e24193848e638a5c4e96fcfdff6723
   '@semantic-release/changelog': 5.0.1_semantic-release@17.1.1
   '@semantic-release/git': 9.0.0_semantic-release@17.1.1
   '@types/debug': 4.1.5
@@ -61,7 +61,7 @@ packages:
       integrity: sha512-vG6SvB6oYEhvgisZNFRmRCUkLz11c7rp+tbNTynGqc6mS1d5ATd/sGyV6W0KZZnXRKMTzZDRgQT3Ou9jhpAfUg==
   /@babel/compat-data/7.11.0:
     dependencies:
-      browserslist: 4.13.0
+      browserslist: 4.14.0
       invariant: 2.2.4
       semver: 5.7.1
     dev: true
@@ -115,7 +115,7 @@ packages:
     dependencies:
       '@babel/compat-data': 7.11.0
       '@babel/core': 7.11.1
-      browserslist: 4.13.0
+      browserslist: 4.14.0
       invariant: 2.2.4
       levenary: 1.1.1
       semver: 5.7.1
@@ -940,7 +940,7 @@ packages:
       '@babel/plugin-transform-unicode-regex': 7.10.4_@babel+core@7.11.1
       '@babel/preset-modules': 0.1.3_@babel+core@7.11.1
       '@babel/types': 7.11.0
-      browserslist: 4.13.0
+      browserslist: 4.14.0
       core-js-compat: 3.6.5
       invariant: 2.2.4
       levenary: 1.1.1
@@ -1593,12 +1593,12 @@ packages:
       rollup: ^1.20.0 || ^2.0.0
     resolution:
       integrity: sha512-XPmVXZ7IlaoWaJLkSCDaa0Y6uVo5XQYHhiMFzOd5qSv5rE+t/UJToPIOE56flKIxBFQI27ONsxb7dqHnwSsjKQ==
-  /@rollup/plugin-typescript/5.0.2_d508d998c8e6588bf77175f7541372d0:
+  /@rollup/plugin-typescript/5.0.2_87e24193848e638a5c4e96fcfdff6723:
     dependencies:
       '@rollup/pluginutils': 3.1.0_rollup@2.23.0
       resolve: 1.17.0
       rollup: 2.23.0
-      tslib: 2.0.0
+      tslib: 2.0.1
       typescript: 3.9.7
     dev: true
     engines:
@@ -2566,10 +2566,10 @@ packages:
     dev: true
     resolution:
       integrity: sha512-9o5UecI3GhkpM6DrXr69PblIuWxPKk9Y0jHBRhdocZ2y7YECBFCsHm79Pr3OyR2AvjhDkabFJaDJMYRazHgsow==
-  /browserslist/4.13.0:
+  /browserslist/4.14.0:
     dependencies:
-      caniuse-lite: 1.0.30001111
-      electron-to-chromium: 1.3.523
+      caniuse-lite: 1.0.30001112
+      electron-to-chromium: 1.3.524
       escalade: 3.0.2
       node-releases: 1.1.60
     dev: true
@@ -2577,7 +2577,7 @@ packages:
       node: ^6 || ^7 || ^8 || ^9 || ^10 || ^11 || ^12 || >=13.7
     hasBin: true
     resolution:
-      integrity: sha512-MINatJ5ZNrLnQ6blGvePd/QOz9Xtu+Ne+x29iQSCHfkU5BugKVJwZKn/iiL8UbpIpa3JhviKjz+XxMo0m2caFQ==
+      integrity: sha512-pUsXKAF2lVwhmtpeA3LJrZ76jXuusrNyhduuQs7CDFf9foT4Y38aQOserd2lMe5DSSrjf3fx34oHwryuvxAUgQ==
   /bs-logger/0.2.6:
     dependencies:
       fast-json-stable-stringify: 2.1.0
@@ -2662,10 +2662,10 @@ packages:
       node: '>=10'
     resolution:
       integrity: sha512-8KMDF1Vz2gzOq54ONPJS65IvTUaB1cHJ2DMM7MbPmLZljDH1qpzzLsWdiN9pHh6qvkRVDTi/07+eNGch/oLU4w==
-  /caniuse-lite/1.0.30001111:
+  /caniuse-lite/1.0.30001112:
     dev: true
     resolution:
-      integrity: sha512-xnDje2wchd/8mlJu8sXvWxOGvMgv+uT3iZ3bkIAynKOzToCssWCmkz/ZIkQBs/2pUB4uwnJKVORWQ31UkbVjOg==
+      integrity: sha512-J05RTQlqsatidif/38aN3PGULCLrg8OYQOlJUKbeYVzC2mGZkZLIztwRlB3MtrfLmawUmjFlNJvy/uhwniIe1Q==
   /capture-exit/2.0.0:
     dependencies:
       rsvp: 4.8.5
@@ -2976,7 +2976,7 @@ packages:
       integrity: sha1-Z29us8OZl8LuGsOpJP1hJHSPV40=
   /core-js-compat/3.6.5:
     dependencies:
-      browserslist: 4.13.0
+      browserslist: 4.14.0
       semver: 7.0.0
     dev: true
     resolution:
@@ -3273,10 +3273,10 @@ packages:
     dev: true
     resolution:
       integrity: sha1-OoOpBOVDUyh4dMVkt1SThoSamMk=
-  /electron-to-chromium/1.3.523:
+  /electron-to-chromium/1.3.524:
     dev: true
     resolution:
-      integrity: sha512-D4/3l5DpciddD92IDRtpLearQSGzly8FwBJv+nITvLH8YJrFabpDFe4yuiOJh2MS4/EsXqyQTXyw1toeYPtshQ==
+      integrity: sha512-ZUvklIBkfXQyA6IeiEss1nfKRICcdB5afAGZAaPGaExdfrkpUu/WWVO+X7QpNnphaVMllXnAcvKnVPdyM+DCPQ==
   /emittery/0.7.1:
     dev: true
     engines:
@@ -8152,10 +8152,10 @@ packages:
     dev: true
     resolution:
       integrity: sha512-i/6DQjL8Xf3be4K/E6Wgpekn5Qasl1usyw++dAA35Ue5orEn65VIxOA+YvNNl9HV3qv70T7CNwjODHZrLwvd1Q==
-  /tslib/2.0.0:
+  /tslib/2.0.1:
     dev: false
     resolution:
-      integrity: sha512-lTqkx847PI7xEDYJntxZH89L2/aXInsyF2luSafe/+0fHOMjlBNXdH6th7f70qxLDhul7KZK0zC8V5ZIyHl0/g==
+      integrity: sha512-SgIkNheinmEBgx1IUNirK0TUD4X9yjjBRTqqjggWCU3pUEqIk3/Uwl3yRixYKT6WjQuGiwDv4NomL3wqRCj+CQ==
   /tsutils/3.17.1_typescript@3.9.7:
     dependencies:
       tslib: 1.13.0
@@ -8713,7 +8713,7 @@ specifiers:
   shx: ^0.3.2
   source-map: ^0.7.3
   ts-jest: ^26.1.4
-  tslib: ^2.0.0
+  tslib: ^2.0.1
   typedoc: ^0.17.8
   typescript: ^3.9.7
   vue: ^3.0.0-rc.5
