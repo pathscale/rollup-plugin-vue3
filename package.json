@@ -1,6 +1,6 @@
 {
   "name": "@pathscale/rollup-plugin-vue3",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Rollup plugin for .vue files",
   "keywords": [
     "rollup",

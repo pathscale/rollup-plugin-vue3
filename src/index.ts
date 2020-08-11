@@ -23,7 +23,7 @@ import { Plugin, RollupError } from "rollup";
 import { createFilter } from "@rollup/pluginutils";
 import qs from "query-string";
 
-import { hash, joinCode } from "./utils";
+import { hash, joinCode, normalizePath } from "./utils";
 import { Options, Query } from "./types";
 
 const debug = createDebugger("rollup-plugin-vue3");
@@ -349,7 +349,7 @@ function getTemplateCode(
     const srcQuery = descriptor.template.src ? `&src` : ``;
     const attrsQuery = attrsToQuery(descriptor.template.attrs);
     const query = `?vue&type=template${idQuery}${srcQuery}${scopedQuery}${attrsQuery}`;
-    const templateRequest = `"${src + query}"`;
+    const templateRequest = `"${normalizePath(src) + query}"`;
     templateImport = `import { ${isServer ? "ssrRender" : "render"} } from ${templateRequest};`;
   }
 
@@ -365,7 +365,7 @@ function getScriptCode(descriptor: SFCDescriptor, resourcePath: string) {
       const attrsQuery = attrsToQuery(descriptor.script.attrs, "js");
       const srcQuery = descriptor.script.src ? `&src` : ``;
       const query = `?vue&type=script${srcQuery}${attrsQuery}`;
-      const scriptRequest = `"${src + query}"`;
+      const scriptRequest = `"${normalizePath(src) + query}"`;
       scriptImport = `import script from ${scriptRequest};`;
       scriptImport += `\nexport * from ${scriptRequest};`;
     }
@@ -397,8 +397,8 @@ function getStyleCode(
       const srcQuery = style.src ? `&src` : ``;
       const query = `?vue&type=style&index=${i}${srcQuery}${idQuery}`;
 
-      const styleRequest = src + query + attrsQuery;
-      const styleRequestWithoutModule = src + query + attrsQueryWithoutModule;
+      const styleRequest = normalizePath(src) + query + attrsQuery;
+      const styleRequestWithoutModule = normalizePath(src) + query + attrsQueryWithoutModule;
 
       if (style.module) {
         if (!hasCSSModules) {
@@ -429,7 +429,7 @@ function getCustomBlock(
     const srcQuery = block.src ? `&src` : ``;
     const attrsQuery = attrsToQuery(block.attrs, block.type);
     const query = `?vue&type=${block.type}&index=${index}${srcQuery}${attrsQuery}`;
-    const request = `"${src + query}"`;
+    const request = `"${normalizePath(src) + query}"`;
     code.push(`import block${index} from ${request};`);
     code.push(`if (typeof block${index} === "function") { block${index}(script) };`);
   });
