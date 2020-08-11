@@ -166,11 +166,10 @@ export default (opts: Partial<Options> = {}): Plugin => {
               message: tip,
             });
 
-        return {
-          code: result.code,
-          map: normalizeSourceMap(result.map),
-        };
-      } else if (query.type === "style") {
+        return { code: result.code, map: normalizeSourceMap(result.map) };
+      }
+
+      if (query.type === "style" && descriptor.styles[query.index]) {
         debug(`transform(${id})`);
         const block = descriptor.styles[query.index];
 
@@ -197,20 +196,23 @@ export default (opts: Partial<Options> = {}): Plugin => {
           }
         } else preprocessOptions = {};
 
-        const result = await compileStyleAsync({
+        const compileOpts: SFCAsyncStyleCompileOptions = {
           filename: query.filename,
           id: query.id ? `data-v-${query.id}` : ``,
           source: code,
           scoped: block.scoped,
-          vars: !!block.vars,
-          modules: !!block.module,
           postcssOptions: options.postcssOptions as Record<string, unknown>,
           postcssPlugins: options.postcssPlugins,
           modulesOptions: options.cssModulesOptions,
           preprocessLang,
           preprocessCustomRequire: options.preprocessCustomRequire,
           preprocessOptions,
-        });
+        };
+
+        if (typeof block.vars !== "undefined") compileOpts.vars = Boolean(block.vars);
+        if (typeof block.module !== "undefined") compileOpts.modules = Boolean(block.module);
+
+        const result = await compileStyleAsync(compileOpts);
 
         if (result.errors.length > 0) {
           for (const error of result.errors)
@@ -221,6 +223,8 @@ export default (opts: Partial<Options> = {}): Plugin => {
 
         if (query.module)
           return { code: `export default ${JSON.stringify(result.modules)};`, map: null };
+
+        console.log(result.code);
 
         return { code: result.code, map: normalizeSourceMap(result.map) };
       }

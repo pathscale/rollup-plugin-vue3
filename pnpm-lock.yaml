@@ -2568,8 +2568,8 @@ packages:
       integrity: sha512-9o5UecI3GhkpM6DrXr69PblIuWxPKk9Y0jHBRhdocZ2y7YECBFCsHm79Pr3OyR2AvjhDkabFJaDJMYRazHgsow==
   /browserslist/4.14.0:
     dependencies:
-      caniuse-lite: 1.0.30001112
-      electron-to-chromium: 1.3.527
+      caniuse-lite: 1.0.30001113
+      electron-to-chromium: 1.3.528
       escalade: 3.0.2
       node-releases: 1.1.60
     dev: true
@@ -2662,10 +2662,10 @@ packages:
       node: '>=10'
     resolution:
       integrity: sha512-8KMDF1Vz2gzOq54ONPJS65IvTUaB1cHJ2DMM7MbPmLZljDH1qpzzLsWdiN9pHh6qvkRVDTi/07+eNGch/oLU4w==
-  /caniuse-lite/1.0.30001112:
+  /caniuse-lite/1.0.30001113:
     dev: true
     resolution:
-      integrity: sha512-J05RTQlqsatidif/38aN3PGULCLrg8OYQOlJUKbeYVzC2mGZkZLIztwRlB3MtrfLmawUmjFlNJvy/uhwniIe1Q==
+      integrity: sha512-qMvjHiKH21zzM/VDZr6oosO6Ri3U0V2tC015jRXjOecwQCJtsU5zklTNTk31jQbIOP8gha0h1ccM/g0ECP+4BA==
   /capture-exit/2.0.0:
     dependencies:
       rsvp: 4.8.5
@@ -3273,10 +3273,10 @@ packages:
     dev: true
     resolution:
       integrity: sha1-OoOpBOVDUyh4dMVkt1SThoSamMk=
-  /electron-to-chromium/1.3.527:
+  /electron-to-chromium/1.3.528:
     dev: true
     resolution:
-      integrity: sha512-ZlB9ySKOnS4g2Ja/TWDz4Q79NZhKV+Vsgntg85zLN08t+QsN1hK/zeDrcqwysSfbfGRVtvai6QYMczeNNUUgUA==
+      integrity: sha512-PEwLXeD679xF6+hYL32QBMzpyEr/H2v/K2v8N0ANkVvSrw2kblSgM7xmLYvzQTUy9d6V5SeV89lbwFqpatNqmw==
   /emittery/0.7.1:
     dev: true
     engines:
