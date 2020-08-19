@@ -55,6 +55,16 @@ describe("transform", () => {
     expect(code).toEqual(expect.stringContaining(`script.render = render`));
   });
 
+  it('should transform <template lang="pug"> block (with `./` path)', async () => {
+    const { code } = await transform(`<template>div</template>`, `./example.vue`);
+
+    expect(code).toEqual(
+      expect.stringContaining(`import { render } from "./example.vue?vue&type=template&id=4b16ad9e"`),
+    );
+
+    expect(code).toEqual(expect.stringContaining(`script.render = render`));
+  });
+
   it("should transform <style> block", async () => {
     const { code } = await transform(`<style>.foo {}</style>`, `example.vue`);
 
