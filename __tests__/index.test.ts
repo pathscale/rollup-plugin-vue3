@@ -11,12 +11,22 @@ describe("transform", () => {
     sourcesContent: (null|string)[],
     version: number
   } }>;
+  let transformPreprocessing: (code: string, fileName: string) => Promise<{ code: string, map: {
+    file: string,
+    mappings: string,
+    names: string[],
+    sourceRoot: string,
+    sources: string[],
+    sourcesContent: (null|string)[],
+    version: number
+  } }>;
   let load: (code: string) => Promise<null | string | {code: string}>;
   let resolveId: (code: string, importer: string) => Promise<null | string>;
   let resolveIdNonMatching: (code: string, importer: string) => Promise<null | string>;
 
   beforeEach(() => {
     transform = PluginVue({ customBlocks: ["*"] }).transform as typeof transform;
+    transformPreprocessing = PluginVue({ customBlocks: ["*"], preprocessStyles: true }).transform as typeof transform;
     resolveId = PluginVue({ customBlocks: ["*"] }).resolveId as typeof resolveId;
     resolveIdNonMatching = PluginVue({ include: ['none'], exclude: ["example.vue"] }).resolveId as typeof resolveId;
     load = PluginVue({ customBlocks: ["*"] }).load as typeof load;
@@ -217,6 +227,28 @@ describe("transform", () => {
       code: '.foo {}',
       map: null
     }));
+  });
+
+  it("should return code/map object with transform of vue query string and a matching style `type` with lang.", async () => {
+    const css = `.foo {
+  color: red;
+}`;
+    for (const [preprocessLang, input = css, code = css] of [
+      ['scss'],
+      ['sass', `.foo
+    color: red`],
+      ['less', css, `${css}\n`],
+      ['stylus', css, `.foo {\n  color: #f00;\n}\n`]
+    ]) {
+      // eslint-disable-next-line no-await-in-loop
+      await transformPreprocessing(`<style lang="${preprocessLang}">${input}</style>`, `example.vue`);
+      // eslint-disable-next-line no-await-in-loop
+      const result = await transformPreprocessing(`<style lang="${preprocessLang}">>${input}</style>`, `example.vue?vue&id=example.vue&index=0&type=style`);
+      expect(result).toEqual(expect.objectContaining({
+        code,
+        map: null
+      }));
+    }
   });
 
   it("should process tips with transform of vue query string and a matching `type`.", async () => {

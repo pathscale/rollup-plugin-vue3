@@ -225,8 +225,6 @@ export default (opts: Partial<Options> = {}): Plugin => {
         if (query.module)
           return { code: `export default ${JSON.stringify(result.modules)};`, map: null };
 
-        console.log(result.code);
-
         return { code: result.code, map: normalizeSourceMap(result.map) };
       }
 
