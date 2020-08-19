@@ -76,14 +76,12 @@ export default (opts: Partial<Options> = {}): Plugin => {
 
       const descriptor = getDescriptor(query.filename);
 
-      if (descriptor) {
-        let block = null;
-        if (query.type === "template") block = descriptor.template;
-        else if (query.type === "script") block = descriptor.script;
-        else if (query.type === "style") block = descriptor.styles[query.index];
-        else if (query.type === "custom") block = descriptor.customBlocks[query.index];
-        if (block) return { code: block.content, map: normalizeSourceMap(block.map) };
-      }
+      let block = null;
+      if (query.type === "template") block = descriptor.template;
+      else if (query.type === "script") block = descriptor.script;
+      else if (query.type === "style") block = descriptor.styles[query.index];
+      else if (query.type === "custom") block = descriptor.customBlocks[query.index];
+      if (block) return { code: block.content, map: normalizeSourceMap(block.map) };
 
       return null;
     },
