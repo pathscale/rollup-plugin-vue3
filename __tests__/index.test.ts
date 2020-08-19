@@ -4,10 +4,11 @@ import { RollupError } from "rollup";
 describe("transform", () => {
   let transform: (code: string, fileName: string) => Promise<{ code: string }>;
   let load: (code: string) => Promise<null | string | {code: string}>;
+  let resolveId: (code: string, importer: string) => Promise<null | string>;
 
   beforeEach(() => {
     transform = PluginVue({ customBlocks: ["*"] }).transform as typeof transform;
-
+    resolveId = PluginVue({ customBlocks: ["*"] }).resolveId as typeof resolveId;
     load = PluginVue({ customBlocks: ["*"] }).load as typeof load;
   });
 
@@ -176,9 +177,21 @@ describe("transform", () => {
     expect(result).toBeNull();
   });
 
-  it("should return null with non-vue query load.", async () => {
+  it("should return null with non-vue query resolveId.", async () => {
     await transform(`<style scoped>.foo {}</style>`, `example.vue`);
 
+    const result = await resolveId(`example.vue`, 'importer');
+
+    expect(result).toBeNull();
+  });
+
+  it("should return id with vue query `resolveId`.", async () => {
+    const result = await resolveId(`example.vue?vue`, 'importer');
+
+    expect(result).toEqual('example.vue?vue');
+  });
+
+  it("should return null with non-vue query load.", async () => {
     const result = await load(`example.vue`);
 
     expect(result).toBeNull();
