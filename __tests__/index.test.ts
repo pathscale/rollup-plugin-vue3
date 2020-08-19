@@ -187,7 +187,7 @@ describe("transform", () => {
     expect(result).toBeNull();
   });
 
-  it("should return code/map object with transform of vue query string and a matching `type`.", async () => {
+  it("should return code/map object with transform of vue query string and a matching template `type`.", async () => {
     await transform(`<template><div /></template>`, `example.vue`);
 
     const result = await transform(`<template><div /></template>`, `example.vue?vue&id=example.vue&index=0&type=template`);
@@ -205,6 +205,17 @@ describe("transform", () => {
         sourcesContent: [null],
         version: 3
       }
+    }));
+  });
+
+  it("should return code/map object with transform of vue query string and a matching style `type`.", async () => {
+    await transform(`<style>.foo {}</style>`, `example.vue`);
+
+    const result = await transform(`<style>.foo {}</style>`, `example.vue?vue&id=example.vue&index=0&type=style`);
+
+    expect(result).toEqual(expect.objectContaining({
+      code: '.foo {}',
+      map: null
     }));
   });
 

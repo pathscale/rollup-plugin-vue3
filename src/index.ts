@@ -200,7 +200,7 @@ export default (opts: Partial<Options> = {}): Plugin => {
         const compileOpts: SFCAsyncStyleCompileOptions = {
           filename: query.filename,
           id: query.id ? `data-v-${query.id}` : ``,
-          source: code,
+          source: block.content,
           scoped: block.scoped,
           postcssOptions: options.postcssOptions as Record<string, unknown>,
           postcssPlugins: options.postcssPlugins,
