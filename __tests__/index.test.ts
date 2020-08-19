@@ -430,6 +430,92 @@ describe("transform", () => {
     expect(result).toBeNull();
   });
 
+  it("should return object with vue query load and matching style type.", async () => {
+    await transform(`<style scoped>.foo {}</style>`, `example.vue`);
+
+    await resolveId.call({
+      resolve () {
+        return {
+        	id: './__tests__/fixtures/example.vue'
+        }
+      }
+    }, `./__tests__/fixtures/example.vue?vue&src`, 'example.vue');
+
+    const result = await load(`./__tests__/fixtures/example.vue?vue&type=style&index=0`);
+
+    expect(result).toEqual(
+      expect.objectContaining({
+        code: ".foo {}",
+        map: {
+          file: "example.vue",
+          mappings: "AAAA,CAAC,CAAC,CAAC,EAAE,CAAC",
+          names: [],
+          sourceRoot: expect.stringMatching("rollup-plugin-vue3") as string,
+          sources: ["example.vue"],
+          sourcesContent: ["<style scoped>.foo {}</style>"],
+          version: 3
+        }
+      })
+    );
+  });
+
+  it("should return object with vue query load and matching script type.", async () => {
+    await transform(`<script>export default {}</script>`, `example.vue`);
+
+    await resolveId.call({
+      resolve () {
+        return {
+        	id: './__tests__/fixtures/example.vue'
+        }
+      }
+    }, `./__tests__/fixtures/example.vue?vue&src`, 'example.vue');
+
+    const result = await load(`./__tests__/fixtures/example.vue?vue&type=script`);
+
+    expect(result).toEqual(
+      expect.objectContaining({
+        code: "export default {}",
+        map: {
+          file: "example.vue",
+          mappings: "AAAA,CAAC,CAAC,CAAC,CAAC,CAAC,EAAE,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,EAAE,CAAC",
+          names: [],
+          sourceRoot: expect.stringMatching("rollup-plugin-vue3") as string,
+          sources: ["example.vue"],
+          sourcesContent: ["<script>export default {}</script>"],
+          version: 3
+        }
+      })
+    );
+  });
+
+  it("should return object with vue query load and matching template type.", async () => {
+    await transform(`<template><div /></template>`, `example.vue`);
+
+    await resolveId.call({
+      resolve () {
+        return {
+        	id: './__tests__/fixtures/example.vue'
+        }
+      }
+    }, `./__tests__/fixtures/example.vue?vue&src`, 'example.vue');
+
+    const result = await load(`./__tests__/fixtures/example.vue?vue&type=template`);
+
+    expect(result).toEqual(
+      expect.objectContaining({
+        code: "<div />",
+        map: {
+          file: "example.vue",
+          mappings: "AAAA,CAAC,CAAC,CAAC,EAAE,CAAC",
+          names: [],
+          sourceRoot: expect.stringMatching("rollup-plugin-vue3") as string,
+          sources: ["example.vue"],
+          sourcesContent: ["<template><div /></template>"],
+          version: 3
+        }
+      })
+    );
+  });
 
   it("should transform <i18n> block", async () => {
     const { code } = await transform(`<i18n>{}</i18n>`, `example.vue`);
