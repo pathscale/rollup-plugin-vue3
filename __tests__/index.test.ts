@@ -229,6 +229,23 @@ describe("transform", () => {
     }));
   });
 
+  it("should err with bad transform of vue query string and a matching style `type`.", async () => {
+    await transform(`<style>.foo</style>`, `example.vue`);
+
+    let rollupError;
+    const result = await transform.call({
+      error (error: RollupError) {
+        rollupError = error;
+      }
+    }, `<style>.foo</style>`, `example.vue?vue&id=example.vue&index=0&type=style`);
+
+    expect(rollupError).toEqual(expect.objectContaining({
+      id: 'example.vue',
+      message: expect.stringMatching('Unknown word') as string,
+    }));
+    expect(result).toBeNull();
+  });
+
   it("should return code/map object with transform of vue query string and a matching style `type` and `module`.", async () => {
     await transform(`<style module>.foo {}</style>`, `example.vue`);
 
