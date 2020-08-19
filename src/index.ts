@@ -330,7 +330,9 @@ function transformVueSFC(
 
   if (!isProduction) {
     output.push(`script.__file = "${shortFilePath}";`);
-  } else if (options.exposeFilename) {
+  } else /* istanbul ignore next -- Not testing prod. */ if (
+    options.exposeFilename
+  ) {
     output.push(`script.__file = "${basename(shortFilePath)}";`);
   }
 
