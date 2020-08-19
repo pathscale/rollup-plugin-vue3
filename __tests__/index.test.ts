@@ -243,6 +243,23 @@ describe("transform", () => {
     );
   });
 
+  it("should return null with vue query load with no matching type.", async () => {
+    await transform(`<style scoped>.foo {}</style>`, `example.vue`);
+
+    await resolveId.call({
+      resolve () {
+        return {
+        	id: './__tests__/fixtures/example.vue'
+        }
+      }
+    }, `./__tests__/fixtures/example.vue?vue&src`, 'example.vue');
+
+    const result = await load(`./__tests__/fixtures/example.vue?vue`);
+
+    expect(result).toBeNull();
+  });
+
+
   it("should transform <i18n> block", async () => {
     const { code } = await transform(`<i18n>{}</i18n>`, `example.vue`);
     expect(code).toEqual(
