@@ -29,7 +29,7 @@ describe("transform", () => {
     transformPreprocessing = PluginVue({ customBlocks: ["*"], preprocessStyles: true }).transform as typeof transform;
     resolveId = PluginVue({ customBlocks: ["*"] }).resolveId as typeof resolveId;
     resolveIdNonMatching = PluginVue({ include: ['none'], exclude: ["example.vue"] }).resolveId as typeof resolveId;
-    load = PluginVue({ customBlocks: ["*"] }).load as typeof load;
+    load = PluginVue().load as typeof load;
   });
 
   it("should transform <script> block", async () => {
