@@ -406,7 +406,11 @@ describe("transform", () => {
     const result = await load(`./__tests__/fixtures/example.vue?vue&src`);
 
     expect(result).toEqual(
-      '<style>.foo {}</style>\n'
+      `<style>
+.foo {
+}
+</style>
+`
     );
   });
 

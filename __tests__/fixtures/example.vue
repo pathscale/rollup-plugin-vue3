@@ -1,1 +1,4 @@
-<style>.foo {}</style>
+<style>
+.foo {
+}
+</style>
