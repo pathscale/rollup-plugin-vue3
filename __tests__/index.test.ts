@@ -199,6 +199,36 @@ describe("transform", () => {
     expect(result).toEqual('example.vue?vue');
   });
 
+  it("should return id with vue query of `resolveId` with `src` and empty importer.", async () => {
+    const result = await resolveId.call({
+      resolve () {
+        return {
+        	id: 'example.vue'
+        }
+      }
+    }, `example.vue?vue&src`, '');
+
+    expect(result).toEqual('example.vue?vue&src');
+  });
+
+  it("should return ResolvedId object with vue query of `resolveId` with `src` and importer.", async () => {
+    await transform(`<style scoped>.foo {}</style>`, `example.vue`);
+
+    const result = await resolveId.call({
+      resolve () {
+        return {
+        	id: 'example2.vue'
+        }
+      }
+    }, `example2.vue?vue&src`, 'example.vue');
+
+    expect(result).toEqual(
+      expect.objectContaining({
+        id: 'example2.vue?vue&src'
+      })
+    );
+  });
+
   it("should return null with non-vue query load.", async () => {
     const result = await load(`example.vue`);
 
