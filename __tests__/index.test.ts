@@ -1,4 +1,5 @@
 import PluginVue from "../src";
+import { RollupError } from "rollup";
 
 describe("transform", () => {
   let transform: (code: string, fileName: string) => Promise<{ code: string }>;
@@ -59,10 +60,29 @@ describe("transform", () => {
     const { code } = await transform(`<template>div</template>`, `./example.vue`);
 
     expect(code).toEqual(
-      expect.stringContaining(`import { render } from "./example.vue?vue&type=template&id=4b16ad9e"`),
+      expect.stringContaining(
+        `import { render } from "./example.vue?vue&type=template&id=4b16ad9e"`,
+      ),
     );
 
     expect(code).toEqual(expect.stringContaining(`script.render = render`));
+  });
+
+  it("should err upon parsing errors", async () => {
+    let rollupError;
+    await transform.call({
+      error (error: RollupError) {
+        rollupError = error;
+      }
+    }, `<script>`, `example.vue`);
+
+    expect(rollupError).toEqual(
+      expect.objectContaining({
+        id: 'example.vue',
+        plugin: 'vue3',
+        message: 'Element is missing end tag.',
+      })
+    );
   });
 
   it("should transform <style> block", async () => {
