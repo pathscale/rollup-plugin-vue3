@@ -208,6 +208,26 @@ describe("transform", () => {
     }));
   });
 
+  it("should err and return null with transform of vue query string, a matching `type`, and broken template.", async () => {
+    await transform(`<template><div /></template>`, `example.vue`);
+
+    let rollupError;
+    const result = await transform.call({
+      error (error: RollupError) {
+        rollupError = error;
+      }
+    }, `<template>`, `example.vue?vue&id=example.vue&index=0&type=template`);
+
+    expect(rollupError).toEqual(
+      expect.objectContaining({
+        id: 'example.vue',
+        plugin: 'vue3',
+        message: 'Element is missing end tag.',
+      })
+    );
+    expect(result).toBeNull();
+  });
+
   it("should return null with non-vue query resolveId.", async () => {
     await transform(`<style scoped>.foo {}</style>`, `example.vue`);
 
