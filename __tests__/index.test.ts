@@ -2,7 +2,15 @@ import PluginVue from "../src";
 import { RollupError } from "rollup";
 
 describe("transform", () => {
-  let transform: (code: string, fileName: string) => Promise<{ code: string }>;
+  let transform: (code: string, fileName: string) => Promise<{ code: string, map: {
+    file: string,
+    mappings: string,
+    names: string[],
+    sourceRoot: string,
+    sources: string[],
+    sourcesContent: (null|string)[],
+    version: number
+  } }>;
   let load: (code: string) => Promise<null | string | {code: string}>;
   let resolveId: (code: string, importer: string) => Promise<null | string>;
   let resolveIdNonMatching: (code: string, importer: string) => Promise<null | string>;
@@ -177,6 +185,27 @@ describe("transform", () => {
     const result = await transform(`<style scoped>.foo {}</style>`, `example.vue?vue&id=example.vue&index=0`);
 
     expect(result).toBeNull();
+  });
+
+  it("should return code/map object with transform of vue query string and a matching `type`.", async () => {
+    await transform(`<template><div /></template>`, `example.vue`);
+
+    const result = await transform(`<template><div /></template>`, `example.vue?vue&id=example.vue&index=0&type=template`);
+
+    expect(result).toEqual(expect.objectContaining({
+      code: expect.stringMatching('export function render') as string,
+      map: {
+        file: 'example.vue',
+        mappings: ';;gCAAU,aAAO;;;wBAAjB,aAA4B;IAAlB,UAAO',
+        names: [],
+        sourceRoot: expect.stringMatching('rollup-plugin-vue3') as string,
+        sources: [
+          expect.stringMatching("rollup-plugin-vue3/example.vue")
+        ],
+        sourcesContent: [null],
+        version: 3
+      }
+    }));
   });
 
   it("should return null with non-vue query resolveId.", async () => {
