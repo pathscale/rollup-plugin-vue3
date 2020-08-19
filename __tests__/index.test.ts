@@ -20,12 +20,24 @@ describe("transform", () => {
     sourcesContent: (null|string)[],
     version: number
   } }>;
+  let transformNonMatching: (code: string, fileName: string) => Promise<{ code: string, map: {
+    file: string,
+    mappings: string,
+    names: string[],
+    sourceRoot: string,
+    sources: string[],
+    sourcesContent: (null|string)[],
+    version: number
+  } }>;
   let load: (code: string) => Promise<null | string | {code: string}>;
   let resolveId: (code: string, importer: string) => Promise<null | string>;
   let resolveIdNonMatching: (code: string, importer: string) => Promise<null | string>;
 
   beforeEach(() => {
     transform = PluginVue({ customBlocks: ["*"] }).transform as typeof transform;
+    transformNonMatching = PluginVue({
+      customBlocks: ["*"], include: ['none'], exclude: ["example.vue"]
+    }).transform as typeof transform;
     transformPreprocessing = PluginVue({ customBlocks: ["*"], preprocessStyles: true }).transform as typeof transform;
     resolveId = PluginVue({ customBlocks: ["*"] }).resolveId as typeof resolveId;
     resolveIdNonMatching = PluginVue({ include: ['none'], exclude: ["example.vue"] }).resolveId as typeof resolveId;
@@ -193,6 +205,14 @@ describe("transform", () => {
     await transform(`<style scoped>.foo {}</style>`, `example.vue`);
 
     const result = await transform(`<style scoped>.foo {}</style>`, `example.vue?vue&id=example.vue&index=0`);
+
+    expect(result).toBeNull();
+  });
+
+  it("should return `null` with transform of vue query string with excluded file name.", async () => {
+    await transform(`<style scoped>.foo {}</style>`, `example.vue`);
+
+    const result = await transformNonMatching(`<style scoped>.foo {}</style>`, `example.vue?vue&id=example.vue&index=0`);
 
     expect(result).toBeNull();
   });
