@@ -29,12 +29,22 @@ describe("transform", () => {
     sourcesContent: (null|string)[],
     version: number
   } }>;
+  let transformSSR: (code: string, fileName: string) => Promise<{ code: string, map: {
+    file: string,
+    mappings: string,
+    names: string[],
+    sourceRoot: string,
+    sources: string[],
+    sourcesContent: (null|string)[],
+    version: number
+  } }>;
   let load: (code: string) => Promise<null | string | {code: string}>;
   let resolveId: (code: string, importer: string) => Promise<null | string>;
   let resolveIdNonMatching: (code: string, importer: string) => Promise<null | string>;
 
   beforeEach(() => {
     transform = PluginVue({ customBlocks: ["*"] }).transform as typeof transform;
+    transformSSR = PluginVue({ customBlocks: ["*"], target: 'node' }).transform as typeof transform;
     transformNonMatching = PluginVue({
       customBlocks: ["*"], include: ['none'], exclude: ["example.vue"]
     }).transform as typeof transform;
@@ -80,6 +90,16 @@ describe("transform", () => {
     );
 
     expect(code).toEqual(expect.stringContaining(`script.render = render`));
+  });
+
+  it("should transform <template> block with `ssrRender`", async () => {
+    const { code } = await transformSSR(`<template><div /></template>`, `example.vue`);
+
+    expect(code).toEqual(
+      expect.stringContaining(`import { ssrRender } from "example.vue?vue&type=template&id=4b16ad9e"`),
+    );
+
+    expect(code).toEqual(expect.stringContaining(`script.ssrRender = ssrRender`));
   });
 
   it('should transform <template lang="pug"> block', async () => {
