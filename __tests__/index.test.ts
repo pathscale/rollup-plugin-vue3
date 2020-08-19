@@ -5,10 +5,12 @@ describe("transform", () => {
   let transform: (code: string, fileName: string) => Promise<{ code: string }>;
   let load: (code: string) => Promise<null | string | {code: string}>;
   let resolveId: (code: string, importer: string) => Promise<null | string>;
+  let resolveIdNonMatching: (code: string, importer: string) => Promise<null | string>;
 
   beforeEach(() => {
     transform = PluginVue({ customBlocks: ["*"] }).transform as typeof transform;
     resolveId = PluginVue({ customBlocks: ["*"] }).resolveId as typeof resolveId;
+    resolveIdNonMatching = PluginVue({ include: ['none'], exclude: ["example.vue"] }).resolveId as typeof resolveId;
     load = PluginVue({ customBlocks: ["*"] }).load as typeof load;
   });
 
@@ -181,6 +183,12 @@ describe("transform", () => {
     await transform(`<style scoped>.foo {}</style>`, `example.vue`);
 
     const result = await resolveId(`example.vue`, 'importer');
+
+    expect(result).toBeNull();
+  });
+
+  it("should return null with vue query resolveId and non-matching filter.", async () => {
+    const result = await resolveIdNonMatching(`example.vue?vue`, 'importer');
 
     expect(result).toBeNull();
   });
