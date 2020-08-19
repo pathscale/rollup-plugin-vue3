@@ -41,7 +41,8 @@ const defaultOpts: Options = {
 export default (opts: Partial<Options> = {}): Plugin => {
   const options: Options = { ...defaultOpts, ...opts };
   const isServer = options.target === "node";
-  const isProduction = process.env.NODE_ENV === "production" || process.env.BUILD === "production";
+  const isProduction = process.env.NODE_ENV === "production" ||
+    process.env.BUILD === "production";
   const rootContext = process.cwd();
 
   const filter = createFilter(options.include, options.exclude);
@@ -306,7 +307,10 @@ function transformVueSFC(
     .replace(/^(\.\.[/\\])+/, "")
     .replace(/\\/g, "/");
 
-  const id = hash(isProduction ? `${shortFilePath}\n${code}` : shortFilePath);
+  const id = hash(isProduction
+      // istanbul ignore next -- Not testing prod.
+      ? `${shortFilePath}\n${code}`
+      : shortFilePath);
 
   const hasScoped = descriptor.styles.some(s => s.scoped);
   const templateImport = getTemplateCode(descriptor, resourcePath, id, hasScoped, isServer);
@@ -324,9 +328,10 @@ function transformVueSFC(
 
   if (hasScoped) output.push(`script.__scopeId = "data-v-${id}";`);
 
+  // istanbul ignore else -- Not testing prod.
   if (!isProduction) {
     output.push(`script.__file = "${shortFilePath}";`);
-  } else /* istanbul ignore next -- Not testing prod. */ if (
+  } else if (
     options.exposeFilename
   ) {
     output.push(`script.__file = "${basename(shortFilePath)}";`);
