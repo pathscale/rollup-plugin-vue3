@@ -1,6 +1,7 @@
 try {
   require.resolve("@vue/compiler-sfc");
 } catch {
+  // istanbul ignore next
   throw new Error("rollup-plugin-vue3 requires @vue/compiler-sfc");
 }
 
