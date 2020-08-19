@@ -3,9 +3,12 @@ import { RollupError } from "rollup";
 
 describe("transform", () => {
   let transform: (code: string, fileName: string) => Promise<{ code: string }>;
+  let load: (code: string) => Promise<null | string | {code: string}>;
 
   beforeEach(() => {
     transform = PluginVue({ customBlocks: ["*"] }).transform as typeof transform;
+
+    load = PluginVue({ customBlocks: ["*"] }).load as typeof load;
   });
 
   it("should transform <script> block", async () => {
@@ -169,6 +172,14 @@ describe("transform", () => {
     await transform(`<style scoped>.foo {}</style>`, `example.vue`);
 
     const result = await transform(`<style scoped>.foo {}</style>`, `example.vue?vue&id=example.vue&index=0`);
+
+    expect(result).toBeNull();
+  });
+
+  it("should return null with non-vue query load.", async () => {
+    await transform(`<style scoped>.foo {}</style>`, `example.vue`);
+
+    const result = await load(`example.vue`);
 
     expect(result).toBeNull();
   });
