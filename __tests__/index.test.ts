@@ -237,10 +237,31 @@ describe("transform", () => {
     expect(result).toBeNull();
   });
 
+  it("should return code/map object with transform of vue query string including `id`, scoped style, and a matching template `type`.", async () => {
+    await transformSSR(`<style scoped>a {color: red;}</style><template><div /></template>`, `example.vue`);
+
+    const result = await transformSSR(`<style scoped>a {color: red;}</style><template><div /></template>`, `example.vue?vue&id=example.vue&index=0&type=template`);
+
+    expect(result).toEqual(expect.objectContaining({
+      code: expect.stringMatching('export const ssrRender') as string,
+      map: {
+        file: 'example.vue',
+        mappings: ';;;;EAAA',
+        names: [],
+        sourceRoot: expect.stringMatching('rollup-plugin-vue3') as string,
+        sources: [
+          expect.stringMatching("rollup-plugin-vue3/example.vue")
+        ],
+        sourcesContent: [null],
+        version: 3
+      }
+    }));
+  });
+
   it("should return code/map object with transform of vue query string and a matching template `type`.", async () => {
     await transform(`<template><div /></template>`, `example.vue`);
 
-    const result = await transform(`<template><div /></template>`, `example.vue?vue&id=example.vue&index=0&type=template`);
+    const result = await transform(`<template><div /></template>`, `example.vue?vue&index=0&type=template`);
 
     expect(result).toEqual(expect.objectContaining({
       code: expect.stringMatching('export function render') as string,
@@ -258,10 +279,21 @@ describe("transform", () => {
     }));
   });
 
-  it("should return code/map object with transform of vue query string and a matching style `type`.", async () => {
+  it("should return code/map object with transform of vue query string including `id` and a matching style `type`.", async () => {
     await transform(`<style>.foo {}</style>`, `example.vue`);
 
     const result = await transform(`<style>.foo {}</style>`, `example.vue?vue&id=example.vue&index=0&type=style`);
+
+    expect(result).toEqual(expect.objectContaining({
+      code: '.foo {}',
+      map: null
+    }));
+  });
+
+  it("should return code/map object with transform of vue query string and a matching style `type`.", async () => {
+    await transform(`<style>.foo {}</style>`, `example.vue`);
+
+    const result = await transform(`<style>.foo {}</style>`, `example.vue?vue&index=0&type=style`);
 
     expect(result).toEqual(expect.objectContaining({
       code: '.foo {}',
