@@ -235,6 +235,14 @@ describe("transform", () => {
     expect(result).toBeNull();
   });
 
+  it("should return string with vue query load with `src`.", async () => {
+    const result = await load(`./__tests__/fixtures/example.vue?vue&src`);
+
+    expect(result).toEqual(
+      '<style>.foo {}</style>\n'
+    );
+  });
+
   it("should transform <i18n> block", async () => {
     const { code } = await transform(`<i18n>{}</i18n>`, `example.vue`);
     expect(code).toEqual(
