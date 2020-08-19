@@ -159,6 +159,12 @@ describe("transform", () => {
     );
   });
 
+  it("should return `null` with non-vue query string)", async () => {
+    const result = await transform(`<style>.foo {}</style>`, `example.vue?missingVue=1`);
+
+    expect(result).toBeNull();
+  });
+
   it("should transform <i18n> block", async () => {
     const { code } = await transform(`<i18n>{}</i18n>`, `example.vue`);
     expect(code).toEqual(
