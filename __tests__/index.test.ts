@@ -1,5 +1,5 @@
 import PluginVue from "../src";
-import { RollupError } from "rollup";
+import { RollupError, RollupWarning } from "rollup";
 
 describe("transform", () => {
   let transform: (code: string, fileName: string) => Promise<{ code: string, map: {
@@ -206,6 +206,33 @@ describe("transform", () => {
         version: 3
       }
     }));
+  });
+
+  it("should process tips with transform of vue query string and a matching `type`.", async () => {
+    await transform(`<template lang="md"># Hello</template>`, `example.vue`);
+
+    let warningObject;
+    let rollupError;
+    const result = await transform.call({
+      warn (warnObj: RollupWarning) {
+        warningObject = warnObj;
+      },
+      error (error: RollupError) {
+        rollupError = error;
+      }
+    }, `<template lang="md"># Hello</template>`, `example.vue?vue&id=example.vue&index=0&type=template`);
+
+    expect(warningObject).toEqual(expect.objectContaining({
+      id: 'example.vue',
+      message: 'Component example.vue uses lang md for template. Please install the language preprocessor.'
+    }));
+
+    expect(rollupError).toEqual(expect.objectContaining({
+      id: 'example.vue',
+      message: 'Component example.vue uses lang md for template, however it is not installed.',
+    }));
+
+    expect(result).toBeNull();
   });
 
   it("should err and return null with transform of vue query string, a matching `type`, and broken template.", async () => {

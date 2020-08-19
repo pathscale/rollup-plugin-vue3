@@ -149,6 +149,13 @@ export default (opts: Partial<Options> = {}): Plugin => {
           transformAssetUrls: options.transformAssetUrls,
         });
 
+        if (result.tips.length > 0)
+          for (const tip of result.tips)
+            this.warn({
+              id: query.filename,
+              message: tip,
+            });
+
         if (result.errors.length > 0) {
           for (const error of result.errors)
             this.error(
@@ -159,13 +166,6 @@ export default (opts: Partial<Options> = {}): Plugin => {
 
           return null;
         }
-
-        if (result.tips.length > 0)
-          for (const tip of result.tips)
-            this.warn({
-              id: query.filename,
-              message: tip,
-            });
 
         return { code: result.code, map: normalizeSourceMap(result.map) };
       }
