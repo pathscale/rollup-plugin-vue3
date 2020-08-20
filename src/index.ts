@@ -448,14 +448,21 @@ function getCustomBlock(
   return joinCode(code);
 }
 
-const createRollupError = (id: string, error: CompilerError | SyntaxError): RollupError =>
-  "code" in error
+const createRollupError = (id: string, error: CompilerError | SyntaxError): RollupError => {
+  let frame;
+  // istanbul ignore else
+  if ("code" in error) {
+    // Add here for coverage reasons: https://github.com/istanbuljs/istanbuljs/issues/526
+    /* istanbul ignore next */
+    frame = error.loc?.source;
+  }
+  return "code" in error
     ? {
         id,
         plugin: "vue3",
         pluginCode: String(error.code),
         message: error.message,
-        frame: error.loc?.source,
+        frame,
         parserError: error,
         loc: error.loc && {
           file: id,
@@ -463,12 +470,14 @@ const createRollupError = (id: string, error: CompilerError | SyntaxError): Roll
           column: error.loc.start.column,
         },
       }
+    // istanbul ignore next
     : {
         id,
         plugin: "vue3",
         message: error.message,
         parserError: error,
-      };
+      }
+};
 
 // these are built-in query parameters so should be ignored
 // if the user happen to add them as attrs
@@ -499,7 +508,10 @@ const normalizeSourceMap = (map: SFCTemplateCompileResults["map"]) =>
     ? {
         ...map,
         version: Number(map.version),
-        mappings: typeof map.mappings === "string" ? map.mappings : "",
+        mappings: typeof map.mappings === "string"
+          ? map.mappings
+          // istanbul ignore next -- Seems `RawSourceMap` of source-map produces regardless
+          : "",
       }
     : null;
 
