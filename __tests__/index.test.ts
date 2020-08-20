@@ -448,6 +448,23 @@ describe("transform", () => {
     );
   });
 
+  it("should return with transform of style with `src`.", async () => {
+    const result = await transform(`<style src="test.css">export default {}</style>`, `example.vue`);
+    expect(result).toEqual(
+      expect.objectContaining({
+        code: expect.stringMatching(/test\.css\?vue&type=style&index=0&src&lang\.css/) as string,
+        map: {
+          mappings: ''
+        }
+      })
+    );
+    expect(result).toEqual(
+      expect.objectContaining({
+        code: expect.stringMatching('export default script') as string
+      })
+    );
+  });
+
   it("should err and return null with transform of vue query string, a matching `type`, and broken template.", async () => {
     await transform(`<template><div /></template>`, `example.vue`);
 
