@@ -17,7 +17,8 @@ describe("transform", () => {
     (code: string, importer: string): Promise<null | string>
   }
   let transform: Transformer;
-  let transformPreprocessing: Transformer;
+  let transformPreprocess: Transformer;
+  let transformStylePreprocessing: Transformer;
   let transformNonMatching: Transformer;
   let transformNonMatchingBlocks: Transformer;
   let transformSSR: Transformer;
@@ -27,6 +28,15 @@ describe("transform", () => {
 
   beforeEach(() => {
     transform = PluginVue({ customBlocks: ["*"] }).transform as typeof transform;
+    transformPreprocess = PluginVue({
+      customBlocks: ["*"],
+      templatePreprocessOptions: {
+        md: {
+          test: 'test2'
+        }
+      }
+    }).transform as typeof transform;
+
     transformSSR = PluginVue({ customBlocks: ["*"], target: 'node' }).transform as typeof transform;
     transformNonMatching = PluginVue({
       customBlocks: ["*"], include: ['none'], exclude: ["example.vue"]
@@ -34,7 +44,7 @@ describe("transform", () => {
     transformNonMatchingBlocks = PluginVue({
       customBlocks: ["!customTag", "okCustomTag"]
     }).transform as typeof transform;
-    transformPreprocessing = PluginVue({ customBlocks: ["*"], preprocessStyles: true }).transform as typeof transform;
+    transformStylePreprocessing = PluginVue({ customBlocks: ["*"], preprocessStyles: true }).transform as typeof transform;
     resolveId = PluginVue({ customBlocks: ["*"] }).resolveId as typeof resolveId;
     resolveIdNonMatching = PluginVue({ include: ['none'], exclude: ["example.vue"] }).resolveId as typeof resolveId;
     load = PluginVue().load as typeof load;
@@ -389,9 +399,9 @@ describe("transform", () => {
       ['stylus', css, `.foo {\n  color: #f00;\n}\n`]
     ]) {
       // eslint-disable-next-line no-await-in-loop
-      await transformPreprocessing(`<style lang="${preprocessLang}">${input}</style>`, `example.vue`);
+      await transformStylePreprocessing(`<style lang="${preprocessLang}">${input}</style>`, `example.vue`);
       // eslint-disable-next-line no-await-in-loop
-      const result = await transformPreprocessing(`<style lang="${preprocessLang}">>${input}</style>`, `example.vue?vue&id=example.vue&index=0&type=style`);
+      const result = await transformStylePreprocessing(`<style lang="${preprocessLang}">>${input}</style>`, `example.vue?vue&id=example.vue&index=0&type=style`);
       expect(result).toEqual(expect.objectContaining({
         code,
         map: null
@@ -400,11 +410,11 @@ describe("transform", () => {
   });
 
   it("should process tips with transform of vue query string and a matching `type`.", async () => {
-    await transform(`<template lang="md"># Hello</template>`, `example.vue`);
+    await transformPreprocess(`<template lang="md"># Hello</template>`, `example.vue`);
 
     let warningObject;
     let rollupError;
-    const result = await transform.call({
+    const result = await transformPreprocess.call({
       warn (warnObj: RollupWarning) {
         warningObject = warnObj;
       },
