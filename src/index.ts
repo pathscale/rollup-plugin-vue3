@@ -247,7 +247,7 @@ function createCustomBlockFilter(queries?: string[]): (type: string) => boolean 
 
   return (type: string) => {
     if (allowed.has(type)) return true;
-    if (disallowed.has(type)) return true;
+    if (disallowed.has(type)) return false;
     return allowAll;
   };
 }

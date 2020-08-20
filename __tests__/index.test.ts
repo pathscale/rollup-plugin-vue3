@@ -29,6 +29,15 @@ describe("transform", () => {
     sourcesContent: (null|string)[],
     version: number
   } }>;
+  let transformNonMatchingBlocks: (code: string, fileName: string) => Promise<{ code: string, map: {
+    file: string,
+    mappings: string,
+    names: string[],
+    sourceRoot: string,
+    sources: string[],
+    sourcesContent: (null|string)[],
+    version: number
+  } }>;
   let transformSSR: (code: string, fileName: string) => Promise<{ code: string, map: {
     file: string,
     mappings: string,
@@ -47,6 +56,9 @@ describe("transform", () => {
     transformSSR = PluginVue({ customBlocks: ["*"], target: 'node' }).transform as typeof transform;
     transformNonMatching = PluginVue({
       customBlocks: ["*"], include: ['none'], exclude: ["example.vue"]
+    }).transform as typeof transform;
+    transformNonMatchingBlocks = PluginVue({
+      customBlocks: ["!customTag"]
     }).transform as typeof transform;
     transformPreprocessing = PluginVue({ customBlocks: ["*"], preprocessStyles: true }).transform as typeof transform;
     resolveId = PluginVue({ customBlocks: ["*"] }).resolveId as typeof resolveId;
@@ -178,11 +190,22 @@ describe("transform", () => {
   });
 
   it('should load custom block', async () => {
-    await transform(`<customTag>something</customTag>`, `example.vue`);
+    const transformResult = await transform(`<customTag>something</customTag>`, `example.vue`);
+    expect(transformResult).toEqual(expect.objectContaining({
+      code: expect.stringContaining('import block0 from') as string
+    }));
     const result = await load(`example.vue?vue&type=custom&index=0`);
     expect(result).toEqual(expect.objectContaining({
       code: 'something',
       map: null
+    }));
+  });
+
+  it('should ignore including custom block with non-matching `customBlocks`', async () => {
+    const transformResult = await transformNonMatchingBlocks(`<customTag>something</customTag>`, `example.vue`);
+    expect(transformResult).toEqual(expect.objectContaining({
+      code: expect.not.stringContaining('import block0 from') as string &&
+        expect.stringContaining('export default script') as string
     }));
   });
 
