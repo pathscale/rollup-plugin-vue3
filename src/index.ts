@@ -368,7 +368,9 @@ function getTemplateCode(
 function getScriptCode(descriptor: SFCDescriptor, resourcePath: string) {
   let scriptImport = `const script = {}`;
   if (descriptor.script || descriptor.scriptSetup) {
+    // istanbul ignore else -- Built-in to compiler
     if (compileScript) descriptor.script = compileScript(descriptor);
+    // istanbul ignore else -- `descriptor.scriptSetup` is experimental and errs out in the regular build
     if (descriptor.script) {
       const src = descriptor.script.src ?? resourcePath;
       const attrsQuery = attrsToQuery(descriptor.script.attrs, "js");
