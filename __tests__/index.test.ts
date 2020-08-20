@@ -2,54 +2,28 @@ import PluginVue from "../src";
 import { RollupError, RollupWarning } from "rollup";
 
 describe("transform", () => {
-  let transform: (code: string, fileName: string) => Promise<{ code: string, map: {
-    file: string,
-    mappings: string,
-    names: string[],
-    sourceRoot: string,
-    sources: string[],
-    sourcesContent: (null|string)[],
-    version: number
-  } }>;
-  let transformPreprocessing: (code: string, fileName: string) => Promise<{ code: string, map: {
-    file: string,
-    mappings: string,
-    names: string[],
-    sourceRoot: string,
-    sources: string[],
-    sourcesContent: (null|string)[],
-    version: number
-  } }>;
-  let transformNonMatching: (code: string, fileName: string) => Promise<{ code: string, map: {
-    file: string,
-    mappings: string,
-    names: string[],
-    sourceRoot: string,
-    sources: string[],
-    sourcesContent: (null|string)[],
-    version: number
-  } }>;
-  let transformNonMatchingBlocks: (code: string, fileName: string) => Promise<{ code: string, map: {
-    file: string,
-    mappings: string,
-    names: string[],
-    sourceRoot: string,
-    sources: string[],
-    sourcesContent: (null|string)[],
-    version: number
-  } }>;
-  let transformSSR: (code: string, fileName: string) => Promise<{ code: string, map: {
-    file: string,
-    mappings: string,
-    names: string[],
-    sourceRoot: string,
-    sources: string[],
-    sourcesContent: (null|string)[],
-    version: number
-  } }>;
+  interface Transformer {
+    (code: string, fileName: string): Promise<{ code: string, map: {
+      file: string,
+      mappings: string,
+      names: string[],
+      sourceRoot: string,
+      sources: string[],
+      sourcesContent: (null|string)[],
+      version: number
+    } }>
+  };
+  interface Resolver {
+    (code: string, importer: string): Promise<null | string>
+  }
+  let transform: Transformer;
+  let transformPreprocessing: Transformer;
+  let transformNonMatching: Transformer;
+  let transformNonMatchingBlocks: Transformer;
+  let transformSSR: Transformer;
   let load: (code: string) => Promise<null | string | {code: string}>;
-  let resolveId: (code: string, importer: string) => Promise<null | string>;
-  let resolveIdNonMatching: (code: string, importer: string) => Promise<null | string>;
+  let resolveId: Resolver;
+  let resolveIdNonMatching: Resolver;
 
   beforeEach(() => {
     transform = PluginVue({ customBlocks: ["*"] }).transform as typeof transform;
