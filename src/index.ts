@@ -235,7 +235,8 @@ export default (opts: Partial<Options> = {}): Plugin => {
 };
 
 function createCustomBlockFilter(queries?: string[]): (type: string) => boolean {
-  if (!queries || queries.length === 0) return () => false;
+  if (!queries || queries.length === 0)
+    return /* istanbul ignore next -- Only invoked on customBlocks */ () => false;
 
   const allowed = new Set(queries.filter(query => /^[a-z]/i.test(query)));
 
