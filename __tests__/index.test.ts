@@ -175,6 +175,23 @@ describe("transform", () => {
     }));
   });
 
+  it('should load custom block with src', async () => {
+    const transformResult = await transform(`<customTag src="someSource.ext">something</customTag>`, `example.vue`);
+    expect(transformResult).toEqual(expect.objectContaining({
+      code: expect.stringContaining('import block0 from') as string
+    }));
+    expect(transformResult).toEqual(expect.objectContaining({
+      code: expect.stringMatching(
+        /someSource\.ext\?vue&type=customTag&index=0&src&lang\.customTag/
+      ) as string
+    }));
+    const result = await load(`example.vue?vue&type=custom&index=0`);
+    expect(result).toEqual(expect.objectContaining({
+      code: 'something',
+      map: null
+    }));
+  });
+
   it('should ignore including custom block with non-matching `customBlocks`', async () => {
     const transformResult = await transformNonMatchingBlocks(`<customTag>something</customTag>`, `example.vue`);
     expect(transformResult).toEqual(expect.objectContaining({
