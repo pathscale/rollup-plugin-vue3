@@ -178,8 +178,10 @@ describe("transform", () => {
   it('should ignore including custom block with non-matching `customBlocks`', async () => {
     const transformResult = await transformNonMatchingBlocks(`<customTag>something</customTag>`, `example.vue`);
     expect(transformResult).toEqual(expect.objectContaining({
-      code: expect.not.stringContaining('import block0 from') as string &&
-        expect.stringContaining('export default script') as string
+      code: expect.not.stringContaining('import block0 from') as string
+    }));
+    expect(transformResult).toEqual(expect.objectContaining({
+      code: expect.stringContaining('export default script') as string
     }));
   });
 
@@ -411,12 +413,37 @@ describe("transform", () => {
     const result = await transform(`<template src="someSource.html"><div /></template>`, `example.vue`);
     expect(result).toEqual(
       expect.objectContaining({
-        code: expect.stringMatching('someSource.html?vue&type=template&id=') as string &&
-          expect.stringMatching('&src') as string &&
-          expect.stringMatching('export default script') as string,
+        code: expect.stringMatching(/someSource\.html\?vue&type=template&id=/) as string,
         map: {
           mappings: ''
         }
+      })
+    );
+    expect(result).toEqual(
+      expect.objectContaining({
+        code: expect.stringMatching('&src') as string
+      })
+    );
+    expect(result).toEqual(
+      expect.objectContaining({
+        code: expect.stringMatching('export default script') as string
+      })
+    );
+  });
+
+  it("should return with transform of script with `src`.", async () => {
+    const result = await transform(`<script src="test.js">export default {}</script>`, `example.vue`);
+    expect(result).toEqual(
+      expect.objectContaining({
+        code: expect.stringMatching(/test\.js\?vue&type=script&src&lang\.js/) as string,
+        map: {
+          mappings: ''
+        }
+      })
+    );
+    expect(result).toEqual(
+      expect.objectContaining({
+        code: expect.stringMatching('export default script') as string
       })
     );
   });
