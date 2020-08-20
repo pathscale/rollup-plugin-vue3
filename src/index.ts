@@ -125,7 +125,6 @@ export default (opts: Partial<Options> = {}): Plugin => {
 
         const block = descriptor.template;
         const preprocessLang = block.lang;
-
         const preprocessOptions =
           preprocessLang &&
           options.templatePreprocessOptions &&

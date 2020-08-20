@@ -448,6 +448,28 @@ describe("transform", () => {
     );
   });
 
+  it("should return with transform of script and template with `src`.", async () => {
+    await transform(`<template src="someSource.html"><div /></template><script>export default {};</script>`, `example.vue`);
+    const result = await transform(`<template src="someSource.html"><div /></template>`, `example.vue?vue&src&type=template`);
+    expect(result).toEqual(
+      expect.objectContaining({
+        code: expect.stringMatching(/someSource\.html/) as string,
+        map: {
+          mappings: ";;qBAAU,GAAG,EAAC,iBAAiB;gCAAC,aAAO;;;wBAAvC,aAAkD,YAAlD,UAAkD;IAAlB,UAAO",
+          names: [],
+          sources: ["example.vue"],
+          sourcesContent: ["<template src=\"someSource.html\"><div /></template>"],
+          version: 3
+        }
+      })
+    );
+    expect(result).toEqual(
+      expect.objectContaining({
+        code: expect.stringMatching('export function render') as string
+      })
+    );
+  });
+
   it("should return with transform of script with `src`.", async () => {
     const result = await transform(`<script src="test.js">export default {}</script>`, `example.vue`);
     expect(result).toEqual(
