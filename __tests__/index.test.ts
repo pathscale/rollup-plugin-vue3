@@ -177,6 +177,15 @@ describe("transform", () => {
     expect(code).toEqual(expect.stringContaining('cssModules["$style"] = style0'));
   });
 
+  it('should load custom block', async () => {
+    await transform(`<customTag>something</customTag>`, `example.vue`);
+    const result = await load(`example.vue?vue&type=custom&index=0`);
+    expect(result).toEqual(expect.objectContaining({
+      code: 'something',
+      map: null
+    }));
+  });
+
   it('should transform <style module="custom"> block', async () => {
     const { code } = await transform(`<style module="custom">.foo {}</style>`, `example.vue`);
 
