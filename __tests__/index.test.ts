@@ -407,6 +407,20 @@ describe("transform", () => {
     expect(result).toBeNull();
   });
 
+  it("should return with transform of template with `src`.", async () => {
+    const result = await transform(`<template src="someSource.html"><div /></template>`, `example.vue`);
+    expect(result).toEqual(
+      expect.objectContaining({
+        code: expect.stringMatching('someSource.html?vue&type=template&id=') as string &&
+          expect.stringMatching('&src') as string &&
+          expect.stringMatching('export default script') as string,
+        map: {
+          mappings: ''
+        }
+      })
+    );
+  });
+
   it("should err and return null with transform of vue query string, a matching `type`, and broken template.", async () => {
     await transform(`<template><div /></template>`, `example.vue`);
 
