@@ -58,7 +58,7 @@ describe("transform", () => {
       customBlocks: ["*"], include: ['none'], exclude: ["example.vue"]
     }).transform as typeof transform;
     transformNonMatchingBlocks = PluginVue({
-      customBlocks: ["!customTag"]
+      customBlocks: ["!customTag", "okCustomTag"]
     }).transform as typeof transform;
     transformPreprocessing = PluginVue({ customBlocks: ["*"], preprocessStyles: true }).transform as typeof transform;
     resolveId = PluginVue({ customBlocks: ["*"] }).resolveId as typeof resolveId;
@@ -206,6 +206,18 @@ describe("transform", () => {
     expect(transformResult).toEqual(expect.objectContaining({
       code: expect.not.stringContaining('import block0 from') as string &&
         expect.stringContaining('export default script') as string
+    }));
+  });
+
+  it('should include explicitly included custom block', async () => {
+    const transformResult = await transformNonMatchingBlocks(`<okCustomTag>something</okCustomTag>`, `example.vue`);
+    expect(transformResult).toEqual(expect.objectContaining({
+      code: expect.stringContaining('import block0 from') as string
+    }));
+    const result = await load(`example.vue?vue&type=custom&index=0`);
+    expect(result).toEqual(expect.objectContaining({
+      code: 'something',
+      map: null
     }));
   });
 
