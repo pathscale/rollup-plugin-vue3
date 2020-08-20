@@ -347,6 +347,17 @@ describe("transform", () => {
     }));
   });
 
+  it("should return code/map object with transform of vue query string and a matching style `type` and `vars`.", async () => {
+    await transform(`<style vars="abc">.foo {}</style>`, `example.vue`);
+
+    const result = await transform(`<style vars="abc">.foo {}</style>`, `example.vue?vue&id=example.vue&index=0&type=style&vars=abc`);
+
+    expect(result).toEqual(expect.objectContaining({
+      code: '.foo {}',
+      map: null
+    }));
+  });
+
   it("should return code/map object with transform of vue query string and a matching style `type` with lang.", async () => {
     const css = `.foo {
   color: red;
