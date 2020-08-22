@@ -41,8 +41,7 @@ const defaultOpts: Options = {
 export default (opts: Partial<Options> = {}): Plugin => {
   const options: Options = { ...defaultOpts, ...opts };
   const isServer = options.target === "node";
-  const isProduction = process.env.NODE_ENV === "production" ||
-    process.env.BUILD === "production";
+  const isProduction = process.env.NODE_ENV === "production" || process.env.BUILD === "production";
   const rootContext = process.cwd();
 
   const filter = createFilter(options.include, options.exclude);
@@ -307,10 +306,12 @@ function transformVueSFC(
     .replace(/^(\.\.[/\\])+/, "")
     .replace(/\\/g, "/");
 
-  const id = hash(isProduction
-      // istanbul ignore next -- Not testing prod.
-      ? `${shortFilePath}\n${code}`
-      : shortFilePath);
+  const id = hash(
+    isProduction
+      ? // istanbul ignore next -- Not testing prod.
+        `${shortFilePath}\n${code}`
+      : shortFilePath,
+  );
 
   const hasScoped = descriptor.styles.some(s => s.scoped);
   const templateImport = getTemplateCode(descriptor, resourcePath, id, hasScoped, isServer);
@@ -331,9 +332,7 @@ function transformVueSFC(
   // istanbul ignore else -- Not testing prod.
   if (!isProduction) {
     output.push(`script.__file = "${shortFilePath}";`);
-  } else if (
-    options.exposeFilename
-  ) {
+  } else if (options.exposeFilename) {
     output.push(`script.__file = "${basename(shortFilePath)}";`);
   }
 
@@ -469,13 +468,13 @@ const createRollupError = (id: string, error: CompilerError | SyntaxError): Roll
           column: error.loc.start.column,
         },
       }
-    // istanbul ignore next
-    : {
+    : // istanbul ignore next
+      {
         id,
         plugin: "vue3",
         message: error.message,
         parserError: error,
-      }
+      };
 };
 
 // these are built-in query parameters so should be ignored
@@ -507,10 +506,11 @@ const normalizeSourceMap = (map: SFCTemplateCompileResults["map"]) =>
     ? {
         ...map,
         version: Number(map.version),
-        mappings: typeof map.mappings === "string"
-          ? map.mappings
-          // istanbul ignore next -- Seems `RawSourceMap` of source-map produces regardless
-          : "",
+        mappings:
+          typeof map.mappings === "string"
+            ? map.mappings
+            : // istanbul ignore next -- Seems `RawSourceMap` of source-map produces regardless
+              "",
       }
     : null;
 
