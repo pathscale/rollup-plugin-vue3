@@ -1,8 +1,13 @@
 name: Release
 description: Release new version
 
-on: [workflow_dispatch, repository_dispatch]:
-  types: [semantic-release]
+on:
+  repository_dispatch:
+    types: [semantic-release]
+
+on:
+  workflow_dispatch:
+    types: [semantic-release]
 
 jobs:
   build:
