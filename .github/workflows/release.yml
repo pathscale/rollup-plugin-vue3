@@ -1,7 +1,8 @@
 name: Release
+description: Release new version
 
 on:
-  repository_dispatch:
+  [workflow_dispatch, repository_dispatch]:
     types: [semantic-release]
 
 jobs:
