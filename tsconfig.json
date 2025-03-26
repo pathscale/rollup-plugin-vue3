@@ -3,6 +3,7 @@
     /* Basic Options */
     "target": "esnext",
     "module": "esnext",
+    "lib": ["esnext"],
     "skipLibCheck": true,
     /* Compile Options */
     "moduleResolution": "node",
