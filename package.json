@@ -24,7 +24,7 @@
     "dist"
   ],
   "scripts": {
-    "tsc": "tsc",
+    "tsc": "tsc -p tsconfig-dev.json",
     "prebuild": "shx rm -rf dist",
     "build": "rollup -c --environment NODE_ENV:production",
     "commit": "commit",
