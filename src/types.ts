@@ -1,4 +1,4 @@
-import { SFCTemplateCompileOptions, SFCAsyncStyleCompileOptions } from "vue/compiler-sfc";
+import { SFCTemplateCompileOptions, SFCAsyncStyleCompileOptions } from "@vue/compiler-sfc";
 
 export interface Options {
   include: string | RegExp | (string | RegExp)[];

@@ -69,6 +69,7 @@
     "@types/jest": "^29.5.14",
     "@types/node": "*",
     "@types/resolve": "^1.20.6",
+    "@vue/compiler-sfc": "3.0.0-rc.5",
     "builtin-modules": "^3.1.0",
     "eslint": "^9.23.0",
     "eslint-config-prettier": "^10.1.1",
@@ -96,9 +97,10 @@
     "typedoc": "^0.18.0",
     "typescript": "^5.8.2",
     "typescript-eslint": "^8.28.0",
-    "vue": "^3.5.13"
+    "vue": "3.0.0-rc.5"
   },
   "peerDependencies": {
+    "@vue/compiler-sfc": "3.0.0-rc.5",
     "rollup": "^2.2.0"
   },
   "engines": {
