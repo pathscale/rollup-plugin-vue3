@@ -19,7 +19,7 @@ import {
 
 import fs from "fs-extra";
 import createDebugger from "debug";
-import { basename, relative } from "node:path";
+import path from "node:path";
 import { Plugin, RollupError } from "rollup";
 import { createFilter } from "@rollup/pluginutils";
 import qs from "query-string";
@@ -38,7 +38,7 @@ const defaultOpts: Options = {
   customBlocks: [],
 };
 
-export default (opts: Partial<Options> = {}): Plugin => {
+const vue = (opts: Partial<Options> = {}): Plugin => {
   const options: Options = { ...defaultOpts, ...opts };
   const isServer = options.target === "node";
   const isProduction = process.env.NODE_ENV === "production" || process.env.BUILD === "production";
@@ -321,7 +321,8 @@ function transformVueSFC(
   },
   options: Options,
 ) {
-  const shortFilePath = relative(rootContext, resourcePath)
+  const shortFilePath = path
+    .relative(rootContext, resourcePath)
     .replace(/^(\.\.[/\\])+/, "")
     .replaceAll("\\", "/");
 
@@ -352,7 +353,7 @@ function transformVueSFC(
   if (!isProduction) {
     output.push(`script.__file = "${shortFilePath}";`);
   } else if (options.exposeFilename) {
-    output.push(`script.__file = "${basename(shortFilePath)}";`);
+    output.push(`script.__file = "${path.basename(shortFilePath)}";`);
   }
 
   output.push("export default script");
@@ -547,3 +548,5 @@ function genCSSModulesCode(
   code.push(`cssModules["${name}"] = ${styleVar};`);
   return joinCode(code);
 }
+
+export default vue;

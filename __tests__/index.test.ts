@@ -1,5 +1,5 @@
-import PluginVue from "../src";
-import { RollupError, RollupWarning } from "rollup";
+import PluginVue from "../src/index.ts";
+import type { RollupError, RollupWarning } from "rollup";
 
 describe("transform", () => {
   interface Transformer {
@@ -668,7 +668,7 @@ describe("transform", () => {
   it("should return id with vue query `resolveId`.", async () => {
     const result = await resolveId(`example.vue?vue`, "importer");
 
-    expect(result).toEqual("example.vue?vue");
+    expect(result).toBe("example.vue?vue");
   });
 
   it("should return id with vue query of `resolveId` with `src` and empty importer.", async () => {
@@ -684,7 +684,7 @@ describe("transform", () => {
       "",
     );
 
-    expect(result).toEqual("example.vue?vue&src");
+    expect(result).toBe("example.vue?vue&src");
   });
 
   it("should return ResolvedId object with vue query of `resolveId` with `src` and importer.", async () => {
@@ -718,7 +718,7 @@ describe("transform", () => {
   it("should return string with vue query load with `src`.", async () => {
     const result = await load(`./__tests__/fixtures/example.vue?vue&src`);
 
-    expect(result).toEqual(
+    expect(result).toBe(
       `<style>
 .foo {
 }

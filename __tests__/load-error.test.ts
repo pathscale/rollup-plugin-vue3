@@ -1,6 +1,7 @@
-import PluginVue from "../src";
+import PluginVue from "../src/index.ts";
 
 describe("transform", () => {
+  /* eslint-disable @typescript-eslint/no-unused-vars */
   let transform: (
     code: string,
     fileName: string,
@@ -18,6 +19,7 @@ describe("transform", () => {
   }>;
   let load: (code: string) => Promise<null | string | { code: string }>;
   let resolveId: (code: string, importer: string) => Promise<null | string>;
+  /* eslint-enable @typescript-eslint/no-unused-vars */
 
   beforeEach(() => {
     transform = PluginVue({ customBlocks: ["*"] }).transform as typeof transform;

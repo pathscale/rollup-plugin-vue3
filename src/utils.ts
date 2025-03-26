@@ -1,4 +1,4 @@
-import { join } from "node:path";
+import path from "node:path";
 import { createHash } from "node:crypto";
 
 export const hash = (data: string): string =>
@@ -7,7 +7,7 @@ export const hash = (data: string): string =>
 export const joinCode = (code: string[]): string => `${code.join("\n")}\n`;
 
 export function normalizePath(...paths: string[]): string {
-  const f = join(...paths).replaceAll("\\", "/");
+  const f = path.join(...paths).replaceAll("\\", "/");
   if (/^\.[/\\]/.test(paths[0])) return `./${f}`;
   return f;
 }

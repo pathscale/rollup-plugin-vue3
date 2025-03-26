@@ -1,4 +1,4 @@
-/* eslint node/no-unsupported-features/es-syntax: ["error", { ignores: ["modules"] }] */
+/* eslint n/no-unsupported-features/es-syntax: ["error", { ignores: ["modules"] }] */
 
 import { babel } from "@rollup/plugin-babel";
 import commonjs from "@rollup/plugin-commonjs";
