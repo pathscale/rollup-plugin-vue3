@@ -68,17 +68,16 @@
     "@types/jest": "^26.0.9",
     "@types/node": "*",
     "@types/resolve": "^1.17.1",
-    "@typescript-eslint/eslint-plugin": "^3.9.0",
-    "@typescript-eslint/parser": "^3.9.0",
-    "@vue/compiler-sfc": "^3.0.0-rc.5",
+    "@typescript-eslint/eslint-plugin": "^5.62.0",
+    "@typescript-eslint/parser": "^5.62.0",
     "builtin-modules": "^3.1.0",
-    "eslint": "^7.6.0",
+    "eslint": "^8.57.1",
     "eslint-config-prettier": "^6.11.0",
     "eslint-import-resolver-node": "^0.3.4",
     "eslint-plugin-import": "^2.22.0",
     "eslint-plugin-jest": "^23.20.0",
     "eslint-plugin-node": "^11.1.0",
-    "eslint-plugin-unicorn": "^21.0.0",
+    "eslint-plugin-unicorn": "^48.0.1",
     "husky": "^4.2.5",
     "jest": "^26.3.0",
     "jest-circus": "^26.3.0",
@@ -95,11 +94,10 @@
     "stylus": "^0.54.8",
     "ts-jest": "^26.1.4",
     "typedoc": "^0.18.0",
-    "typescript": "^3.9.7",
-    "vue": "^3.0.0-rc.5"
+    "typescript": "^5.8.2",
+    "vue": "^3.5.13"
   },
   "peerDependencies": {
-    "@vue/compiler-sfc": "^3.0.0-rc.5",
     "rollup": "^2.2.0"
   },
   "engines": {

@@ -14,6 +14,7 @@ module.exports = {
   parserOptions: { sourceType: "module" },
   plugins: ["unicorn"],
   rules: {
+    "unicorn/prefer-module": "off", // Reenable when supporting native ESM
     "no-await-in-loop": "error",
     "no-var": "error",
     "prefer-const": "error",

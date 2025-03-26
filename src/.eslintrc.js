@@ -24,6 +24,7 @@ module.exports = {
   },
   plugins: ["@typescript-eslint", "unicorn"],
   rules: {
+    "unicorn/prefer-module": "off", // Reenable when supporting native ESM
     "@typescript-eslint/default-param-last": "error",
     "@typescript-eslint/naming-convention": "error",
     "@typescript-eslint/prefer-for-of": "error",

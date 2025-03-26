@@ -1,8 +1,8 @@
 try {
-  require.resolve("@vue/compiler-sfc");
+  require.resolve("vue/compiler-sfc");
 } catch {
   // istanbul ignore next
-  throw new Error("rollup-plugin-vue3 requires @vue/compiler-sfc");
+  throw new Error("rollup-plugin-vue3 requires vue/compiler-sfc");
 }
 
 import {
@@ -15,11 +15,11 @@ import {
   SFCDescriptor,
   SFCTemplateCompileResults,
   SFCAsyncStyleCompileOptions,
-} from "@vue/compiler-sfc";
+} from "vue/compiler-sfc";
 
 import fs from "fs-extra";
 import createDebugger from "debug";
-import { basename, relative } from "path";
+import { basename, relative } from "node:path";
 import { Plugin, RollupError } from "rollup";
 import { createFilter } from "@rollup/pluginutils";
 import qs from "query-string";
@@ -72,15 +72,32 @@ export default (opts: Partial<Options> = {}): Plugin => {
       const query = parseQuery(id);
       if (!query.vue) return null;
 
-      if (query.src) return fs.readFile(query.filename, "utf-8");
+      if (query.src) return fs.readFile(query.filename, "utf8");
 
       const descriptor = getDescriptor(query.filename);
 
       let block = null;
-      if (query.type === "template") block = descriptor.template;
-      else if (query.type === "script") block = descriptor.script;
-      else if (query.type === "style") block = descriptor.styles[query.index];
-      else if (query.type === "custom") block = descriptor.customBlocks[query.index];
+      switch (query.type) {
+        case "template": {
+          block = descriptor.template;
+          break;
+        }
+        case "script": {
+          block = descriptor.script;
+          break;
+        }
+        case "style": {
+          block = descriptor.styles[query.index];
+          break;
+        }
+        case "custom": {
+          {
+            block = descriptor.customBlocks[query.index];
+            // No default
+          }
+          break;
+        }
+      }
       if (block) return { code: block.content, map: normalizeSourceMap(block.map) };
 
       return null;
@@ -173,9 +190,9 @@ export default (opts: Partial<Options> = {}): Plugin => {
 
         let preprocessOptions = (options.preprocessOptions as Record<string, unknown>) || {};
 
-        const preprocessLang = (options.preprocessStyles
-          ? block.lang
-          : undefined) as SFCAsyncStyleCompileOptions["preprocessLang"];
+        const preprocessLang = (
+          options.preprocessStyles ? block.lang : undefined
+        ) as SFCAsyncStyleCompileOptions["preprocessLang"];
 
         if (preprocessLang) {
           preprocessOptions =
@@ -184,13 +201,15 @@ export default (opts: Partial<Options> = {}): Plugin => {
           // include node_modules for imports by default
           switch (preprocessLang) {
             case "scss":
-            case "sass":
+            case "sass": {
               preprocessOptions = { includePaths: ["node_modules"], ...preprocessOptions };
               break;
+            }
 
             case "less":
-            case "stylus":
+            case "stylus": {
               preprocessOptions = { paths: ["node_modules"], ...preprocessOptions };
+            }
           }
         } else preprocessOptions = {};
 
@@ -207,8 +226,8 @@ export default (opts: Partial<Options> = {}): Plugin => {
           preprocessOptions,
         };
 
-        if (typeof block.vars !== "undefined") compileOpts.vars = Boolean(block.vars);
-        if (typeof block.module !== "undefined") compileOpts.modules = Boolean(block.module);
+        if (block.vars !== undefined) compileOpts.vars = Boolean(block.vars);
+        if (block.module !== undefined) compileOpts.modules = Boolean(block.module);
 
         const result = await compileStyleAsync(compileOpts);
 
@@ -304,7 +323,7 @@ function transformVueSFC(
 ) {
   const shortFilePath = relative(rootContext, resourcePath)
     .replace(/^(\.\.[/\\])+/, "")
-    .replace(/\\/g, "/");
+    .replaceAll("\\", "/");
 
   const id = hash(
     isProduction
@@ -392,7 +411,7 @@ function getStyleCode(
   let hasCSSModules = false;
 
   if (descriptor.styles.length > 0) {
-    descriptor.styles.forEach((style, i) => {
+    for (const [i, style] of descriptor.styles.entries()) {
       const src = style.src ?? resourcePath;
 
       // do not include module in default query, since we use it to indicate
@@ -419,7 +438,7 @@ function getStyleCode(
       } else {
         stylesCode += `\nimport "${styleRequest}";`;
       }
-    });
+    }
   }
 
   return stylesCode;
@@ -432,16 +451,18 @@ function getCustomBlock(
 ) {
   const code: string[] = [];
 
-  descriptor.customBlocks.forEach((block, index) => {
-    if (!filter(block.type)) return;
+  for (const [index, block] of descriptor.customBlocks.entries()) {
+    if (!filter(block.type)) continue;
     const src = block.src ?? resourcePath;
     const srcQuery = block.src ? `&src` : ``;
     const attrsQuery = attrsToQuery(block.attrs, block.type);
     const query = `?vue&type=${block.type}&index=${index}${srcQuery}${attrsQuery}`;
     const request = `"${normalizePath(src) + query}"`;
-    code.push(`import block${index} from ${request};`);
-    code.push(`if (typeof block${index} === "function") { block${index}(script) };`);
-  });
+    code.push(
+      `import block${index} from ${request};`,
+      `if (typeof block${index} === "function") { block${index}(script) };`,
+    );
+  }
 
   return joinCode(code);
 }
