@@ -28,7 +28,7 @@ devDependencies:
   '@types/resolve': 1.20.6
   '@typescript-eslint/eslint-plugin': 3.10.1_8b7a1c2ee374e3372300a1bd4c184f07
   '@typescript-eslint/parser': 3.10.1_eslint@7.32.0+typescript@4.9.5
-  '@vue/compiler-sfc': 3.5.13
+  '@vue/compiler-sfc': 3.0.0-rc.5_vue@3.5.13
   builtin-modules: 3.3.0
   eslint: 7.32.0
   eslint-config-prettier: 6.15.0_eslint@7.32.0
@@ -2585,6 +2585,16 @@ packages:
       node: ^8.10.0 || ^10.13.0 || >=11.10.1
     resolution:
       integrity: sha512-9JgC82AaQeglebjZMgYR5wgmfUdUc+EitGUUMW8u2nDckaeimzW+VsoLV6FoimPv2id3VQzfjwBxEMVz08ameQ==
+  /@vue/compiler-core/3.0.0-rc.5:
+    dependencies:
+      '@babel/parser': 7.27.0
+      '@babel/types': 7.27.0
+      '@vue/shared': 3.0.0-rc.5
+      estree-walker: 2.0.2
+      source-map: 0.6.1
+    dev: true
+    resolution:
+      integrity: sha512-dNz5AObEYg0Oglw3emIsBhTAOVfObrfxDaAzR0UTRDDq+Ohfr6KTSaVQAH88Ym+oa08ZlLZBFc6ARe9doAOIxg==
   /@vue/compiler-core/3.5.13:
     dependencies:
       '@babel/parser': 7.27.0
@@ -2595,6 +2605,13 @@ packages:
     dev: true
     resolution:
       integrity: sha512-oOdAkwqUfW1WqpwSYJce06wvt6HljgY3fGeM9NcVA1HaYOij3mZG9Rkysn0OHuyUAGMbEbARIpsG+LPVlBJ5/Q==
+  /@vue/compiler-dom/3.0.0-rc.5:
+    dependencies:
+      '@vue/compiler-core': 3.0.0-rc.5
+      '@vue/shared': 3.0.0-rc.5
+    dev: true
+    resolution:
+      integrity: sha512-z8n+R1GhFnWuKURLYxfVSEfP7nSNM91qteobxwys55fhlZZuReouMnUwgrn+ois/IL6RdFlT9H+n4+N6yLrdJA==
   /@vue/compiler-dom/3.5.13:
     dependencies:
       '@vue/compiler-core': 3.5.13
@@ -2602,6 +2619,30 @@ packages:
     dev: true
     resolution:
       integrity: sha512-ZOJ46sMOKUjO3e94wPdCzQ6P1Lx/vhp2RSvfaab88Ajexs0AHeV0uasYhi99WPaogmBlRHNRuly8xV75cNTMDA==
+  /@vue/compiler-sfc/3.0.0-rc.5_vue@3.5.13:
+    dependencies:
+      '@babel/parser': 7.27.0
+      '@babel/types': 7.27.0
+      '@vue/compiler-core': 3.0.0-rc.5
+      '@vue/compiler-dom': 3.0.0-rc.5
+      '@vue/compiler-ssr': 3.0.0-rc.5
+      '@vue/shared': 3.0.0-rc.5
+      consolidate: 0.15.1
+      estree-walker: 2.0.2
+      hash-sum: 2.0.0
+      lru-cache: 5.1.1
+      magic-string: 0.25.9
+      merge-source-map: 1.1.0
+      postcss: 7.0.39
+      postcss-modules: 3.2.2
+      postcss-selector-parser: 6.1.2
+      source-map: 0.6.1
+      vue: 3.5.13_typescript@4.9.5
+    dev: true
+    peerDependencies:
+      vue: 3.0.0-rc.5
+    resolution:
+      integrity: sha512-huoIFEfFCJxHcpoByAUQti7CIwJdHPLJXKuy2HG7J1B+IEKugtBdF50CLH35ZD8dWM0nyOMFFqTbO7i6CCjL3Q==
   /@vue/compiler-sfc/3.5.13:
     dependencies:
       '@babel/parser': 7.27.0
@@ -2616,6 +2657,13 @@ packages:
     dev: true
     resolution:
       integrity: sha512-6VdaljMpD82w6c2749Zhf5T9u5uLBWKnVue6XWxprDobftnletJ8+oel7sexFfM3qIxNmVE7LSFGTpv6obNyaQ==
+  /@vue/compiler-ssr/3.0.0-rc.5:
+    dependencies:
+      '@vue/compiler-dom': 3.0.0-rc.5
+      '@vue/shared': 3.0.0-rc.5
+    dev: true
+    resolution:
+      integrity: sha512-OU5Vl2+bCDMImS9OeCVnl4lfxZ3/sopdwX2SrUWVKQvCxmmmlyWvoVkC6nNGCs/MrOmIMhKmL6etgzLTWyCkUg==
   /@vue/compiler-ssr/3.5.13:
     dependencies:
       '@vue/compiler-dom': 3.5.13
@@ -2655,6 +2703,10 @@ packages:
       vue: 3.5.13
     resolution:
       integrity: sha512-wAi4IRJV/2SAW3htkTlB+dHeRmpTiVIK1OGLWV1yeStVSebSQQOwGwIq0D3ZIoBj2C2qpgz5+vX9iEBkTdk5YA==
+  /@vue/shared/3.0.0-rc.5:
+    dev: true
+    resolution:
+      integrity: sha512-ZhcgGzBpp+pUzisZgQpM4ctIGgLpYjBj7/rZfbhEPxFHF/BuTV2jmhXvAl8aF9xDAejIcw85xCy92gDSwKtPag==
   /@vue/shared/3.5.13:
     dev: true
     resolution:
@@ -3123,6 +3175,14 @@ packages:
     dev: true
     resolution:
       integrity: sha512-NzUnlZexiaH/46WDhANlyR2bXRopNg4F/zuSA3OpZnllCUgRaOF2znDioDWrmbNVsuZk6l9pMquQB38cfBZwkQ==
+  /big.js/5.2.2:
+    dev: true
+    resolution:
+      integrity: sha512-vyL2OymJxmarO8gxMr0mhChsO9QGwhynfuu4+MHTAW6czfq9humCB7rKpUjDd9YUiDPU4mzpyupFSvOClAwbmQ==
+  /bluebird/3.7.2:
+    dev: true
+    resolution:
+      integrity: sha512-XpNj6GDQzdfW+r2Wnn7xiSAd7TM3jzkxGXBGTtWKuSXv1xUV+azxAm8jdWZN06QTQk+2N2XB9jRDkvbmQmcRtg==
   /bottleneck/2.19.5:
     dev: true
     resolution:
@@ -3523,6 +3583,15 @@ packages:
     dev: true
     resolution:
       integrity: sha512-/Srv4dswyQNBfohGpz9o6Yb3Gz3SrUDqBH5rTuhGR7ahtlbYKnVxw2bCFMRljaA7EXHaXZ8wsHdodFvbkhKmqg==
+  /consolidate/0.15.1:
+    dependencies:
+      bluebird: 3.7.2
+    deprecated: Please upgrade to consolidate v1.0.0+ as it has been modernized with several long-awaited fixes implemented. Maintenance is supported by Forward Email at https://forwardemail.net ; follow/watch https://github.com/ladjs/consolidate for updates and release changelog
+    dev: true
+    engines:
+      node: '>= 0.10.0'
+    resolution:
+      integrity: sha512-DW46nrsMJgy9kqAbPt5rKaCr7uFtpo4mSUvLHIUbJEjm0vo+aY5QLwBUq3FK4tRnJr/X0Psc0C4jf/h+HtXSMw==
   /conventional-changelog-angular/5.0.13:
     dependencies:
       compare-func: 2.0.0
@@ -3681,6 +3750,13 @@ packages:
     dev: true
     resolution:
       integrity: sha512-oUnjmWpy0niI3x/mPL8dVEI1l7MnG3+HHyRPHf+YFSbK+svOhXpmSOcDURUh2aOCgl2grzrOPt1nHLuCVFULLw==
+  /cssesc/3.0.0:
+    dev: true
+    engines:
+      node: '>=4'
+    hasBin: true
+    resolution:
+      integrity: sha512-/Tb/JcjK111nNScGob5MNtsntNM1aCNUDipB/TkwZFhyDrrE47SOx/18wF2bbjgc3ZzCSKW1T5nt5EbFoAz/Vg==
   /cssom/0.3.8:
     dev: true
     resolution:
@@ -3990,6 +4066,12 @@ packages:
     dev: true
     resolution:
       integrity: sha512-MSjYzcWNOA0ewAHpz0MxpYFvwg6yjy1NG3xteoqz644VCo/RPgnr1/GGt+ic3iJTzQ8Eu3TdM14SawnVUmGE6A==
+  /emojis-list/3.0.0:
+    dev: true
+    engines:
+      node: '>= 4'
+    resolution:
+      integrity: sha512-/kyM18EfinwXZbno9FyUGeFh87KC8HRQBQGildHZbEuRyWFOmv1U10o9BBp8XVZDVNNuQKyIGIu5ZYAAXJ0V2Q==
   /end-of-stream/1.4.4:
     dependencies:
       once: 1.4.0
@@ -4850,6 +4932,12 @@ packages:
     dev: true
     resolution:
       integrity: sha512-xckBUXyTIqT97tq2x2AMb+g163b5JFysYk0x4qxNFwbfQkmNZoiRHb6sPzI9/QV33WeuvVYBUIiD4NzNIyqaRQ==
+  /generic-names/2.0.1:
+    dependencies:
+      loader-utils: 1.4.2
+    dev: true
+    resolution:
+      integrity: sha512-kPCHWa1m9wGG/OwQpeweTwM/PYiQLrUIxXbt/P4Nic3LbGjCP0YwrALHW1uNLKZ0LIMg+RF+XRlj2ekT9ZlZAQ==
   /gensync/1.0.0-beta.2:
     dev: true
     engines:
@@ -5159,6 +5247,10 @@ packages:
       node: '>=0.10.0'
     resolution:
       integrity: sha512-ODYZC64uqzmtfGMEAX/FvZiRyWLpAC3vYnNunURUnkGVTS+mI0smVsWaPydRBsE3g+ok7h960jChO8mFcWlHaQ==
+  /hash-sum/2.0.0:
+    dev: true
+    resolution:
+      integrity: sha512-WdZTbAByD+pHfl/g9QSsBIIwy8IT+EsPiKDs0KNX+zSHhdDLFKdZu0BQHljvO+0QI/BasbMSUa8wYNCZTvhslg==
   /hasown/2.0.2:
     dependencies:
       function-bind: 1.1.2
@@ -5258,6 +5350,18 @@ packages:
       node: '>=0.10.0'
     resolution:
       integrity: sha512-v3MXnZAcvnywkTUEZomIActle7RXXeedOR31wwl7VlyoXO4Qi9arvSenNQWne1TcRwhCL1HwLI21bEqdpj8/rA==
+  /icss-replace-symbols/1.1.0:
+    dev: true
+    resolution:
+      integrity: sha512-chIaY3Vh2mh2Q3RGXttaDIzeiPvaVXJ+C4DAh/w3c37SKZ/U6PGMmuicR2EQQp9bKG8zLMCl7I+PtIoOOPp8Gg==
+  /icss-utils/4.1.1:
+    dependencies:
+      postcss: 7.0.39
+    dev: true
+    engines:
+      node: '>= 6'
+    resolution:
+      integrity: sha512-4aFq7wvWyMHKgxsH8QQtGpvbASCf+eM3wPRLI6R+MgAnTCZ6STYsRvttLvRWK0Nfif5piF394St3HeJDaljGPA==
   /ignore/4.0.6:
     dev: true
     engines:
@@ -6598,6 +6702,16 @@ packages:
       node: '>=4'
     resolution:
       integrity: sha512-Kx8hMakjX03tiGTLAIdJ+lL0htKnXjEZN6hk/tozf/WOuYGdZBJrZ+rCJRbVCugsjB3jMLn9746NsQIf5VjBMw==
+  /loader-utils/1.4.2:
+    dependencies:
+      big.js: 5.2.2
+      emojis-list: 3.0.0
+      json5: 1.0.2
+    dev: true
+    engines:
+      node: '>=4.0.0'
+    resolution:
+      integrity: sha512-I5d00Pd/jwMD2QCduo657+YM/6L3KZu++pmX9VFncxaxvHcru9jx1lBaFft+r4Mt2jK0Yhp41XlRAihzPxHNCg==
   /locate-path/2.0.0:
     dependencies:
       p-locate: 2.0.0
@@ -6623,6 +6737,10 @@ packages:
       node: '>=10'
     resolution:
       integrity: sha512-iPZK6eYjbxRu3uB4/WZ3EsEIMJFMqAoopl3R+zuq0UjcAm/MO6KCweDgPfP3elTztoKP3KtnVHxTn2NHBSDVUw==
+  /lodash.camelcase/4.3.0:
+    dev: true
+    resolution:
+      integrity: sha512-TwuEnCnxbc3rAvhf/LbG7tJUDzhqXyFnv3dtzLOPgCG/hODL7WFnsbwktkD7yUV0RrreP/l1PALq/YSg6VvjlA==
   /lodash.capitalize/4.2.1:
     dev: true
     resolution:
@@ -6841,6 +6959,12 @@ packages:
       node: '>=10'
     resolution:
       integrity: sha512-r85E3NdZ+mpYk1C6RjPFEMSE+s1iZMuHtsHAqY0DT3jZczl0diWUZ8g6oU7h0M9cD2EL+PzaYghhCLzR0ZNn5Q==
+  /merge-source-map/1.1.0:
+    dependencies:
+      source-map: 0.6.1
+    dev: true
+    resolution:
+      integrity: sha512-Qkcp7P2ygktpMPh2mCQZaf3jhN6D3Z/qVZHSdWvQ+2Ef5HgRAPBO57A77+ENm0CPx2+1Ce/MYKi3ymqdfuqibw==
   /merge-stream/2.0.0:
     dev: true
     resolution:
@@ -7559,6 +7683,10 @@ packages:
       node: '>=8'
     resolution:
       integrity: sha512-gDKb8aZMDeD/tZWs9P6+q0J9Mwkdl6xMV8TjnGP3qJVJ06bdMgkbBlLU8IdfOsIsFz2BW1rNVT3XuNEl8zPAvw==
+  /picocolors/0.2.1:
+    dev: true
+    resolution:
+      integrity: sha512-cMlDqaLEqfSaW8Z7N5Jw+lyIW869EzT73/F5lhtY9cLGoVxSXznfgfXMO0Z5K0o0Q2TkTXq+0KFsdnSe3jDViA==
   /picocolors/1.1.1:
     dev: true
     resolution:
@@ -7636,6 +7764,77 @@ packages:
       node: '>= 0.4'
     resolution:
       integrity: sha512-/+5VFTchJDoVj3bhoqi6UeymcD00DAwb1nJwamzPvHEszJ4FpF6SNNbUbOS8yI56qHzdV8eK0qEfOSiodkTdxg==
+  /postcss-modules-extract-imports/2.0.0:
+    dependencies:
+      postcss: 7.0.39
+    dev: true
+    engines:
+      node: '>= 6'
+    resolution:
+      integrity: sha512-LaYLDNS4SG8Q5WAWqIJgdHPJrDDr/Lv775rMBFUbgjTz6j34lUznACHcdRWroPvXANP2Vj7yNK57vp9eFqzLWQ==
+  /postcss-modules-local-by-default/3.0.3:
+    dependencies:
+      icss-utils: 4.1.1
+      postcss: 7.0.39
+      postcss-selector-parser: 6.1.2
+      postcss-value-parser: 4.2.0
+    dev: true
+    engines:
+      node: '>= 6'
+    resolution:
+      integrity: sha512-e3xDq+LotiGesympRlKNgaJ0PCzoUIdpH0dj47iWAui/kyTgh3CiAr1qP54uodmJhl6p9rN6BoNcdEDVJx9RDw==
+  /postcss-modules-scope/2.2.0:
+    dependencies:
+      postcss: 7.0.39
+      postcss-selector-parser: 6.1.2
+    dev: true
+    engines:
+      node: '>= 6'
+    resolution:
+      integrity: sha512-YyEgsTMRpNd+HmyC7H/mh3y+MeFWevy7V1evVhJWewmMbjDHIbZbOXICC2y+m1xI1UVfIT1HMW/O04Hxyu9oXQ==
+  /postcss-modules-values/3.0.0:
+    dependencies:
+      icss-utils: 4.1.1
+      postcss: 7.0.39
+    dev: true
+    resolution:
+      integrity: sha512-1//E5jCBrZ9DmRX+zCtmQtRSV6PV42Ix7Bzj9GbwJceduuf7IqP8MgeTXuRDHOWj2m0VzZD5+roFWDuU8RQjcg==
+  /postcss-modules/3.2.2:
+    dependencies:
+      generic-names: 2.0.1
+      icss-replace-symbols: 1.1.0
+      lodash.camelcase: 4.3.0
+      postcss: 7.0.39
+      postcss-modules-extract-imports: 2.0.0
+      postcss-modules-local-by-default: 3.0.3
+      postcss-modules-scope: 2.2.0
+      postcss-modules-values: 3.0.0
+      string-hash: 1.1.3
+    dev: true
+    resolution:
+      integrity: sha512-JQ8IAqHELxC0N6tyCg2UF40pACY5oiL6UpiqqcIFRWqgDYO8B0jnxzoQ0EOpPrWXvcpu6BSbQU/3vSiq7w8Nhw==
+  /postcss-selector-parser/6.1.2:
+    dependencies:
+      cssesc: 3.0.0
+      util-deprecate: 1.0.2
+    dev: true
+    engines:
+      node: '>=4'
+    resolution:
+      integrity: sha512-Q8qQfPiZ+THO/3ZrOrO0cJJKfpYCagtMUkXbnEfmgUjwXg6z/WBeOyS9APBBPCTSiDV+s4SwQGu8yFsiMRIudg==
+  /postcss-value-parser/4.2.0:
+    dev: true
+    resolution:
+      integrity: sha512-1NNCs6uurfkVbeXG4S8JFT9t19m45ICnif8zWLd5oPSZ50QnwMfK+H3jv408d4jw/7Bttv5axS5IiHoLaVNHeQ==
+  /postcss/7.0.39:
+    dependencies:
+      picocolors: 0.2.1
+      source-map: 0.6.1
+    dev: true
+    engines:
+      node: '>=6.0.0'
+    resolution:
+      integrity: sha512-yioayjNbHn6z1/Bywyb2Y4s3yvDAeXGOyxqD+LnVOinq6Mdmd++SW2wUNVzavyyHxd6+DxzWGIuosg6P1Rj8uA==
   /postcss/8.5.3:
     dependencies:
       nanoid: 3.3.11
@@ -8701,6 +8900,10 @@ packages:
       node: '>=0.6.19'
     resolution:
       integrity: sha512-a1uQGz7IyVy9YwhqjZIZu1c8JO8dNIe20xBmSS6qu9kv++k3JGzCVmprbNN5Kn+BgzD5E7YYwg1CcjuJMRNsvg==
+  /string-hash/1.1.3:
+    dev: true
+    resolution:
+      integrity: sha512-kJUvRUFK49aub+a7T1nNE66EJbZBMnBgoC1UbCZ5n6bsZKBRga4KgBRTMn/pFkeCZSYtNeSyMxPDM0AXWELk2A==
   /string-length/4.0.2:
     dependencies:
       char-regex: 1.0.2
@@ -9777,7 +9980,7 @@ specifiers:
   '@types/resolve': ^1.17.1
   '@typescript-eslint/eslint-plugin': ^3.9.0
   '@typescript-eslint/parser': ^3.9.0
-  '@vue/compiler-sfc': ^3.0.0-rc.5
+  '@vue/compiler-sfc': 3.0.0-rc.5
   builtin-modules: ^3.1.0
   debug: ^4.1.1
   eslint: ^7.6.0
