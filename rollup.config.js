@@ -1,6 +1,6 @@
-/* eslint node/no-unsupported-features/es-syntax: ["error", { ignores: ["modules"] }] */
+/* eslint n/no-unsupported-features/es-syntax: ["error", { ignores: ["modules"] }] */
 
-import babel from "@rollup/plugin-babel";
+import { babel } from "@rollup/plugin-babel";
 import commonjs from "@rollup/plugin-commonjs";
 import dts from "rollup-plugin-dts";
 import externals from "rollup-plugin-node-externals";

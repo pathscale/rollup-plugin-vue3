@@ -5,6 +5,8 @@
     "module": "esnext",
     "lib": ["esnext"],
     "skipLibCheck": true,
+    "allowImportingTsExtensions": true,
+    "noEmit": true,
     /* Compile Options */
     "moduleResolution": "node",
     "resolveJsonModule": true,
@@ -23,5 +25,5 @@
     /* Paths */
     "baseUrl": "."
   },
-  "include": ["src/**/*.ts"]
+  "include": ["src/**/*.ts", "__tests__/*.ts"]
 }
