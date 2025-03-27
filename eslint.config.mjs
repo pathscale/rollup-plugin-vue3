@@ -14,14 +14,13 @@ const extensions = [".mjs", ".js", ".json", ".ts", ".jsx", ".tsx"];
 export default tseslint.config([
   {
     ignores: [
-      "/dist",
-      "/tmp",
-      "/.cache",
-      "/.vscode",
-      "/node_modules",
-      "/coverage",
-      "/docs",
-      "/__tests__/fixtures",
+      "dist",
+      "tmp",
+      ".cache",
+      ".vscode",
+      "coverage",
+      "docs",
+      "__tests__/fixtures",
       ".eslintrc.js",
     ],
   },
