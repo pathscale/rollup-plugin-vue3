@@ -9,26 +9,28 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
-        node: ["22", "20"]
 
     steps:
       - name: Code Checkout
         uses: actions/checkout@v2
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v1
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v1
         with:
-          node-version: ${{ matrix.node }}
+          bun-version: latest
+
+      - name: Show Bun version
+        run: |
+          echo "Bun version: $(bun --version)"
 
       - name: Install Dependencies
         run: |
-          npm install -g pnpm@10
-          pnpm i --frozen-lockfile
+          bun install --frozen
         env:
           HUSKY_SKIP_INSTALL: 1
           CI: true
 
       - name: Test
-        run: pnpm t
+        run: bun run test
         env:
           CI: true
